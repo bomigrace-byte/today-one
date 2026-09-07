@@ -1,0 +1,171 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: #f7f5f0;
+    color: #222;
+}
+
+.container {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+.screen {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 42px;
+    margin: 0 0 24px;
+}
+
+h2 {
+    font-size: 30px;
+    line-height: 1.5;
+    margin: 20px 0;
+}
+
+.intro {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.category {
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: #888;
+}
+
+#mission-description {
+    max-width: 500px;
+    font-size: 17px;
+    line-height: 1.8;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+button {
+    width: 180px;
+    height: 52px;
+    border: none;
+    border-radius: 999px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #222;
+    color: white;
+    margin: 6px;
+}
+
+.secondary-button {
+    background: transparent;
+    color: #555;
+    border: 1px solid #ccc;
+}
+
+textarea {
+    width: 100%;
+    max-width: 500px;
+    min-height: 160px;
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    background: white;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    margin-bottom: 20px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #888;
+}
+
+#photo-input {
+    display: none;
+}
+
+.photo-button {
+    display: inline-flex;
+    width: 180px;
+    height: 52px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    cursor: pointer;
+    color: #555;
+    margin: 6px;
+}
+
+.photo-preview {
+    width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin: 10px 0 20px;
+}
+
+.saved-discovery {
+    max-width: 500px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.emotion-title {
+    margin-top: 20px;
+    margin-bottom: 12px;
+    color: #555;
+}
+
+.emotion-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+.emotion-button {
+    width: 180px;
+    height: 52px;
+    background: white;
+    color: #555;
+    border: 1px solid #ddd;
+}
+
+.emotion-button.selected {
+    background: #222;
+    color: white;
+    border-color: #222;
+}

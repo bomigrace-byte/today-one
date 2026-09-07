@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘, 다른 것 하나</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <!-- 홈 화면 -->
+        <section id="home-screen" class="screen">
+            <p class="eyebrow">TODAY, ONE DIFFERENT THING</p>
+
+            <h1>오늘, 다른 것 하나</h1>
+
+            <p class="intro">
+                오늘은 평소와 조금 다르게<br>
+                해볼까요?
+            </p>
+
+            <button id="draw-button">
+                ✦ 하나 뽑기
+            </button>
+
+            <button id="history-button" class="secondary-button">
+                지난 발견 보기
+            </button>
+        </section>
+
+
+        <!-- 오늘의 행동 화면 -->
+        <section id="mission-screen" class="screen hidden">
+
+            <p id="category" class="category"></p>
+
+            <h2 id="mission-title"></h2>
+
+            <p id="mission-description"></p>
+
+            <button id="done-button">
+                해봤어요
+            </button>
+
+            <button id="back-button" class="secondary-button">
+                돌아가기
+            </button>
+
+        </section>
+
+
+        <!-- 발견 기록 화면 -->
+        <section id="record-screen" class="screen hidden">
+
+        <p class="eyebrow">YOUR DISCOVERY</p>
+
+        <h2>무엇을 발견했나요?</h2>
+
+        <textarea
+            id="discovery-input"
+            placeholder="발견한 것을 자유롭게 적어보세요."
+        ></textarea>
+
+        <label for="photo-input" class="photo-button">
+            📷 사진 추가
+        </label>
+
+        <input
+            type="file"
+            id="photo-input"
+            accept="image/*"
+        >
+
+        <img
+            id="photo-preview"
+            class="photo-preview hidden"
+            alt="선택한 사진 미리보기"
+        >
+
+        <p class="emotion-title">그걸 발견하고 어떤 생각이 들었나요?</p>
+
+        <div class="emotion-list">
+
+            <button type="button" class="emotion-button" data-emotion="신기했다">
+                🤔 신기했다
+            </button>
+
+            <button type="button" class="emotion-button" data-emotion="기분이 좋았다">
+                😊 기분이 좋았다
+            </button>
+
+            <button type="button" class="emotion-button" data-emotion="별 생각 없었다">
+                😐 별 생각 없었다
+            </button>
+
+            <button type="button" class="emotion-button" data-emotion="궁금해졌다">
+                🧐 궁금해졌다
+            </button>
+
+        </div>
+
+        <button id="save-button">
+            기록하기
+        </button>
+
+        <button id="record-back-button" class="secondary-button">
+            돌아가기
+        </button>
+
+    </section>
+
+        <!-- 기록 완료 화면 -->
+        <section id="complete-screen" class="screen hidden">
+
+            <p class="eyebrow">DISCOVERY RECORDED</p>
+
+            <h2>오늘의 발견을<br>기록했어요.</h2>
+
+            <p id="saved-discovery" class="saved-discovery"></p>
+
+            <button id="home-button">
+                처음으로
+            </button>
+
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

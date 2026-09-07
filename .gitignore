@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+data/today_one.db
+uploads/
+.env
