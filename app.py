@@ -3,12 +3,14 @@ import random
 import sqlite3
 from pathlib import Path
 from datetime import date
+from google import genai
 
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
+client = genai.Client()
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -148,19 +150,39 @@ def create_discovery():
     }), 201
 
 @app.post("/api/ai/question")
-
-@app.post("/api/ai/question")
 def create_ai_question():
-
     data = request.get_json()
-
     discovery_id = data.get("discovery_id")
     discovery = data.get("discovery", "").strip()
 
     if not discovery:
         return jsonify({"error": "발견 내용을 입력해주세요."}), 400
 
-    question = f"'{discovery}'을(를) 발견했을 때 가장 먼저 어떤 생각이 들었나요?"
+    prompt = f"""
+사용자는 일상에서 다음과 같은 것을 발견했습니다.
+
+"{discovery}"
+
+이 발견을 바탕으로 사용자가 자신의 경험이나 생각을
+조금 더 들여다볼 수 있도록 짧은 후속 질문을 하나 만들어주세요.
+
+규칙:
+- 질문은 반드시 하나만 작성하세요.
+- 한국어로 작성하세요.
+- 30자 이내로 작성하세요.
+- 부담스럽거나 심리상담처럼 느껴지지 않게 하세요.
+- 정답을 요구하지 마세요.
+- 발견 내용과 직접적으로 관련된 질문을 하세요.
+- "왜 그랬나요?"처럼 추궁하는 느낌의 질문은 피하세요.
+- 질문만 출력하세요.
+"""
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=prompt
+    )
+
+    question = response.text.strip()
 
     connection = get_db_connection()
 
@@ -179,6 +201,7 @@ def create_ai_question():
     return jsonify({
         "question": question
     })
+
 
 @app.post("/api/discoveries/<int:discovery_id>/reflection")
 def save_reflection(discovery_id):
