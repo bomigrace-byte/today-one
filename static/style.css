@@ -214,3 +214,16 @@ textarea:focus {
     border-radius: 14px;
     margin-top: 14px;
 }
+
+.history-question {
+    margin-top: 18px;
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+}
+
+.history-reflection {
+    margin-top: 8px;
+    font-size: 16px;
+    line-height: 1.7;
+}

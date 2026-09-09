@@ -149,6 +149,26 @@
             </button>
         </section>
 
+
+        <section id="reflection-screen" class="screen hidden">
+        <p class="eyebrow">ONE MORE QUESTION</p>
+
+        <h2 id="ai-question"></h2>
+
+        <textarea
+            id="reflection-input"
+            placeholder="떠오르는 생각을 자유롭게 적어보세요."
+        ></textarea>
+
+        <button id="reflection-save-button">
+            답변 저장
+        </button>
+
+        <button id="reflection-skip-button" class="secondary-button">
+            건너뛰기
+        </button>
+    </section>
+
     </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -11,6 +11,7 @@ const homeScreen = document.getElementById("home-screen");
 const missionScreen = document.getElementById("mission-screen");
 const recordScreen = document.getElementById("record-screen");
 const completeScreen = document.getElementById("complete-screen");
+const reflectionScreen = document.getElementById("reflection-screen");
 const historyScreen = document.getElementById("history-screen");
 const historyList = document.getElementById("history-list");
 
@@ -22,11 +23,16 @@ const discoveryInput = document.getElementById("discovery-input");
 const photoInput = document.getElementById("photo-input");
 const photoPreview = document.getElementById("photo-preview");
 const savedDiscovery = document.getElementById("saved-discovery");
+const aiQuestion = document.getElementById("ai-question");
+const reflectionInput = document.getElementById("reflection-input");
+const reflectionSaveButton = document.getElementById("reflection-save-button");
+const reflectionSkipButton = document.getElementById("reflection-skip-button");
 
 const emotionButtons = document.querySelectorAll(".emotion-button");
 
 let currentAction = null;
 let selectedEmotion = "";
+let currentDiscoveryId = null;
 
 
 drawButton.addEventListener("click", async () => {
@@ -123,9 +129,30 @@ saveButton.addEventListener("click", async () => {
     }
 
     savedDiscovery.textContent = discovery;
+    currentDiscoveryId = result.id;
+
+    const aiResponse = await fetch("/api/ai/question", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        discovery_id: currentDiscoveryId,
+        discovery: discovery
+    })
+});
+
+    const aiResult = await aiResponse.json();
+
+    if (!aiResponse.ok) {
+        alert(aiResult.error);
+        return;
+    }
+
+    document.getElementById("ai-question").textContent = aiResult.question;
 
     recordScreen.classList.add("hidden");
-    completeScreen.classList.remove("hidden");
+    reflectionScreen.classList.remove("hidden");
 
 });
 
@@ -190,6 +217,25 @@ historyButton.addEventListener("click", async () => {
             card.appendChild(action);
             card.appendChild(content);
 
+            if (discovery.ai_question) {
+
+                const question = document.createElement("p");
+                question.classList.add("history-question");
+                question.textContent = discovery.ai_question;
+
+                card.appendChild(question);
+            }
+
+
+            if (discovery.reflection) {
+
+                const reflection = document.createElement("p");
+                reflection.classList.add("history-reflection");
+                reflection.textContent = discovery.reflection;
+
+                card.appendChild(reflection);
+}
+
             if (discovery.emotion) {
 
                 const emotion = document.createElement("p");
@@ -222,5 +268,50 @@ historyBackButton.addEventListener("click", () => {
 
     historyScreen.classList.add("hidden");
     homeScreen.classList.remove("hidden");
+
+});
+
+reflectionSaveButton.addEventListener("click", async () => {
+
+    const reflection = reflectionInput.value.trim();
+
+    if (!reflection) {
+        alert("생각을 한 줄이라도 적어주세요.");
+        return;
+    }
+
+    const response = await fetch(
+        `/api/discoveries/${currentDiscoveryId}/reflection`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                reflection: reflection
+            })
+        }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.error);
+        return;
+    }
+
+    reflectionInput.value = "";
+
+    reflectionScreen.classList.add("hidden");
+    completeScreen.classList.remove("hidden");
+});
+
+
+reflectionSkipButton.addEventListener("click", () => {
+
+    reflectionInput.value = "";
+
+    reflectionScreen.classList.add("hidden");
+    completeScreen.classList.remove("hidden");
 
 });

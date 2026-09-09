@@ -147,6 +147,67 @@ def create_discovery():
         "message": "발견이 저장되었습니다."
     }), 201
 
+@app.post("/api/ai/question")
+
+@app.post("/api/ai/question")
+def create_ai_question():
+
+    data = request.get_json()
+
+    discovery_id = data.get("discovery_id")
+    discovery = data.get("discovery", "").strip()
+
+    if not discovery:
+        return jsonify({"error": "발견 내용을 입력해주세요."}), 400
+
+    question = f"'{discovery}'을(를) 발견했을 때 가장 먼저 어떤 생각이 들었나요?"
+
+    connection = get_db_connection()
+
+    connection.execute(
+        """
+        UPDATE discoveries
+        SET ai_question = ?
+        WHERE id = ?
+        """,
+        (question, discovery_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "question": question
+    })
+
+@app.post("/api/discoveries/<int:discovery_id>/reflection")
+def save_reflection(discovery_id):
+
+    data = request.get_json()
+
+    reflection = data.get("reflection", "").strip()
+
+    if not reflection:
+        return jsonify({"error": "생각을 입력해주세요."}), 400
+
+    connection = get_db_connection()
+
+    connection.execute(
+        """
+        UPDATE discoveries
+        SET reflection = ?
+        WHERE id = ?
+        """,
+        (reflection, discovery_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({
+        "message": "생각이 저장되었습니다."
+    })
+
 @app.get("/uploads/<filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
