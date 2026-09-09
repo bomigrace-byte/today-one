@@ -15,9 +15,12 @@ const reflectionScreen = document.getElementById("reflection-screen");
 const historyScreen = document.getElementById("history-screen");
 const historyList = document.getElementById("history-list");
 
+
+
 const category = document.getElementById("category");
 const missionTitle = document.getElementById("mission-title");
 const missionDescription = document.getElementById("mission-description");
+const chainMessage = document.getElementById("chain-message");
 
 const discoveryInput = document.getElementById("discovery-input");
 const photoInput = document.getElementById("photo-input");
@@ -35,22 +38,53 @@ let selectedEmotion = "";
 let currentDiscoveryId = null;
 
 
+// 오늘의 행동 뽑기
 drawButton.addEventListener("click", async () => {
 
-    const response = await fetch("/api/today");
-    const action = await response.json();
+    try {
+        drawButton.disabled = true;
+        drawButton.textContent = "하나 고르는 중...";
 
-    currentAction = action;
+        const response = await fetch("/api/today");
 
-    category.textContent = action.category;
-    missionTitle.textContent = action.title;
-    missionDescription.textContent = action.description;
+        if (!response.ok) {
+            throw new Error(`오늘의 행동 요청 실패: ${response.status}`);
+        }
 
-    homeScreen.classList.add("hidden");
-    missionScreen.classList.remove("hidden");
+        const action = await response.json();
+
+        currentAction = action;
+
+        category.textContent = action.category;
+        missionTitle.textContent = action.title;
+        missionDescription.textContent = action.description;
+
+        if (action.personalized) {
+            chainMessage.textContent = action.chain_message;
+            chainMessage.classList.remove("hidden");
+        } else {
+            chainMessage.textContent = "";
+            chainMessage.classList.add("hidden");
+        }
+
+        homeScreen.classList.add("hidden");
+        missionScreen.classList.remove("hidden");
+
+    } catch (error) {
+
+        console.error("오늘의 행동을 가져오지 못했습니다:", error);
+
+        alert("오늘의 행동을 가져오지 못했어요. 잠시 후 다시 시도해주세요.");
+
+    } finally {
+
+        drawButton.disabled = false;
+        drawButton.textContent = "✦ 하나 뽑기";
+    }
 });
 
 
+// 행동 완료
 doneButton.addEventListener("click", () => {
 
     missionScreen.classList.add("hidden");
@@ -59,6 +93,7 @@ doneButton.addEventListener("click", () => {
 });
 
 
+// 미션 화면에서 돌아가기
 backButton.addEventListener("click", () => {
 
     missionScreen.classList.add("hidden");
@@ -67,20 +102,24 @@ backButton.addEventListener("click", () => {
 });
 
 
+// 사진 선택
 photoInput.addEventListener("change", () => {
 
     const file = photoInput.files[0];
 
     if (file) {
+
         const imageUrl = URL.createObjectURL(file);
 
         photoPreview.src = imageUrl;
         photoPreview.classList.remove("hidden");
+
     }
 
 });
 
 
+// 감정 선택
 emotionButtons.forEach((button) => {
 
     button.addEventListener("click", () => {
@@ -92,11 +131,13 @@ emotionButtons.forEach((button) => {
         button.classList.add("selected");
 
         selectedEmotion = button.dataset.emotion;
+
     });
 
 });
 
 
+// 발견 기록 저장
 saveButton.addEventListener("click", async () => {
 
     const discovery = discoveryInput.value.trim();
@@ -106,57 +147,85 @@ saveButton.addEventListener("click", async () => {
         return;
     }
 
-    const formData = new FormData();
-
-    formData.append("action_id", currentAction.id);
-    formData.append("content", discovery);
-    formData.append("emotion", selectedEmotion);
-
-    if (photoInput.files[0]) {
-        formData.append("image", photoInput.files[0]);
-    }
-
-    const response = await fetch("/api/discoveries", {
-        method: "POST",
-        body: formData
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        alert(result.error);
+    if (!currentAction) {
+        alert("오늘의 행동 정보를 찾을 수 없어요.");
         return;
     }
 
-    savedDiscovery.textContent = discovery;
-    currentDiscoveryId = result.id;
+    try {
 
-    const aiResponse = await fetch("/api/ai/question", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        discovery_id: currentDiscoveryId,
-        discovery: discovery
-    })
-});
+        saveButton.disabled = true;
+        saveButton.textContent = "저장하는 중...";
 
-    const aiResult = await aiResponse.json();
+        const formData = new FormData();
 
-    if (!aiResponse.ok) {
-        alert(aiResult.error);
-        return;
+        formData.append("action_id", currentAction.id);
+        formData.append("content", discovery);
+        formData.append("emotion", selectedEmotion);
+        formData.append(
+            "previous_discovery_id",
+            currentAction.previous_discovery_id ?? ""
+        );
+
+        if (photoInput.files[0]) {
+            formData.append("image", photoInput.files[0]);
+        }
+
+        const response = await fetch("/api/discoveries", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "발견 저장에 실패했습니다.");
+        }
+
+        savedDiscovery.textContent = discovery;
+
+        currentDiscoveryId = result.id;
+
+
+        // Gemini 후속 질문 요청
+        const aiResponse = await fetch("/api/ai/question", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                discovery_id: currentDiscoveryId,
+                discovery: discovery
+            })
+        });
+
+        const aiResult = await aiResponse.json();
+
+        if (!aiResponse.ok) {
+            throw new Error(aiResult.error || "AI 질문 생성에 실패했습니다.");
+        }
+
+        aiQuestion.textContent = aiResult.question;
+
+        recordScreen.classList.add("hidden");
+        reflectionScreen.classList.remove("hidden");
+
+    } catch (error) {
+
+        console.error("발견 저장 또는 AI 질문 생성 실패:", error);
+
+        alert(error.message);
+
+    } finally {
+
+        saveButton.disabled = false;
+        saveButton.textContent = "기록하기";
     }
 
-    document.getElementById("ai-question").textContent = aiResult.question;
-
-    recordScreen.classList.add("hidden");
-    reflectionScreen.classList.remove("hidden");
-
 });
 
 
+// 기록 화면에서 돌아가기
 recordBackButton.addEventListener("click", () => {
 
     recordScreen.classList.add("hidden");
@@ -165,14 +234,20 @@ recordBackButton.addEventListener("click", () => {
 });
 
 
+// 처음으로
 homeButton.addEventListener("click", () => {
 
     discoveryInput.value = "";
+    reflectionInput.value = "";
+
     photoInput.value = "";
+
     photoPreview.src = "";
     photoPreview.classList.add("hidden");
 
     selectedEmotion = "";
+    currentDiscoveryId = null;
+    currentAction = null;
 
     emotionButtons.forEach((button) => {
         button.classList.remove("selected");
@@ -183,87 +258,116 @@ homeButton.addEventListener("click", () => {
 
 });
 
+
+// 지난 발견 보기
 historyButton.addEventListener("click", async () => {
 
-    const response = await fetch("/api/discoveries");
-    const discoveries = await response.json();
+    try {
 
-    historyList.innerHTML = "";
+        const response = await fetch("/api/discoveries");
 
-    if (discoveries.length === 0) {
+        if (!response.ok) {
+            throw new Error("지난 발견을 불러오지 못했습니다.");
+        }
 
-        historyList.textContent = "아직 기록한 발견이 없어요.";
+        const discoveries = await response.json();
 
-    } else {
+        historyList.innerHTML = "";
 
-        discoveries.forEach((discovery) => {
+        if (discoveries.length === 0) {
 
-            const card = document.createElement("div");
-            card.classList.add("history-card");
+            historyList.textContent = "아직 기록한 발견이 없어요.";
 
-            const date = document.createElement("p");
-            date.classList.add("history-date");
-            date.textContent = discovery.date;
+        } else {
 
-            const action = document.createElement("p");
-            action.classList.add("history-action");
-            action.textContent = discovery.action_title;
+            discoveries.forEach((discovery) => {
 
-            const content = document.createElement("p");
-            content.classList.add("history-content");
-            content.textContent = discovery.content;
-
-            card.appendChild(date);
-            card.appendChild(action);
-            card.appendChild(content);
-
-            if (discovery.ai_question) {
-
-                const question = document.createElement("p");
-                question.classList.add("history-question");
-                question.textContent = discovery.ai_question;
-
-                card.appendChild(question);
-            }
+                const card = document.createElement("div");
+                card.classList.add("history-card");
 
 
-            if (discovery.reflection) {
+                const date = document.createElement("p");
+                date.classList.add("history-date");
+                date.textContent = discovery.date;
 
-                const reflection = document.createElement("p");
-                reflection.classList.add("history-reflection");
-                reflection.textContent = discovery.reflection;
 
-                card.appendChild(reflection);
-}
+                const action = document.createElement("p");
+                action.classList.add("history-action");
+                action.textContent = discovery.action_title;
 
-            if (discovery.emotion) {
 
-                const emotion = document.createElement("p");
-                emotion.classList.add("history-emotion");
-                emotion.textContent = discovery.emotion;
+                const content = document.createElement("p");
+                content.classList.add("history-content");
+                content.textContent = discovery.content;
 
-                card.appendChild(emotion);
-            }
 
-            if (discovery.image_path) {
+                card.appendChild(date);
+                card.appendChild(action);
+                card.appendChild(content);
 
-                const image = document.createElement("img");
-                image.src = discovery.image_path;
-                image.classList.add("history-image");
 
-                card.appendChild(image);
-            }
+                if (discovery.ai_question) {
 
-            historyList.appendChild(card);
-        });
+                    const question = document.createElement("p");
+                    question.classList.add("history-question");
+                    question.textContent = discovery.ai_question;
+
+                    card.appendChild(question);
+                }
+
+
+                if (discovery.reflection) {
+
+                    const reflection = document.createElement("p");
+                    reflection.classList.add("history-reflection");
+                    reflection.textContent = discovery.reflection;
+
+                    card.appendChild(reflection);
+                }
+
+
+                if (discovery.emotion) {
+
+                    const emotion = document.createElement("p");
+                    emotion.classList.add("history-emotion");
+                    emotion.textContent = discovery.emotion;
+
+                    card.appendChild(emotion);
+                }
+
+
+                if (discovery.image_path) {
+
+                    const image = document.createElement("img");
+
+                    image.src = discovery.image_path;
+                    image.classList.add("history-image");
+                    image.alt = "발견 기록 사진";
+
+                    card.appendChild(image);
+                }
+
+
+                historyList.appendChild(card);
+
+            });
+        }
+
+        homeScreen.classList.add("hidden");
+        historyScreen.classList.remove("hidden");
+
+    } catch (error) {
+
+        console.error("지난 발견 불러오기 실패:", error);
+
+        alert("지난 발견을 불러오지 못했어요.");
+
     }
-
-    homeScreen.classList.add("hidden");
-    historyScreen.classList.remove("hidden");
 
 });
 
 
+// 지난 발견에서 처음으로
 historyBackButton.addEventListener("click", () => {
 
     historyScreen.classList.add("hidden");
@@ -271,6 +375,8 @@ historyBackButton.addEventListener("click", () => {
 
 });
 
+
+// 생각 저장
 reflectionSaveButton.addEventListener("click", async () => {
 
     const reflection = reflectionInput.value.trim();
@@ -280,33 +386,56 @@ reflectionSaveButton.addEventListener("click", async () => {
         return;
     }
 
-    const response = await fetch(
-        `/api/discoveries/${currentDiscoveryId}/reflection`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                reflection: reflection
-            })
-        }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        alert(result.error);
+    if (!currentDiscoveryId) {
+        alert("기록 정보를 찾을 수 없어요.");
         return;
     }
 
-    reflectionInput.value = "";
+    try {
 
-    reflectionScreen.classList.add("hidden");
-    completeScreen.classList.remove("hidden");
+        reflectionSaveButton.disabled = true;
+        reflectionSaveButton.textContent = "저장하는 중...";
+
+        const response = await fetch(
+            `/api/discoveries/${currentDiscoveryId}/reflection`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    reflection: reflection
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "생각 저장에 실패했습니다.");
+        }
+
+        reflectionInput.value = "";
+
+        reflectionScreen.classList.add("hidden");
+        completeScreen.classList.remove("hidden");
+
+    } catch (error) {
+
+        console.error("생각 저장 실패:", error);
+
+        alert(error.message);
+
+    } finally {
+
+        reflectionSaveButton.disabled = false;
+        reflectionSaveButton.textContent = "답변 저장";
+    }
+
 });
 
 
+// AI 질문 건너뛰기
 reflectionSkipButton.addEventListener("click", () => {
 
     reflectionInput.value = "";

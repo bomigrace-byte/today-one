@@ -227,3 +227,10 @@ textarea:focus {
     font-size: 16px;
     line-height: 1.7;
 }
+
+.chain-message {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
