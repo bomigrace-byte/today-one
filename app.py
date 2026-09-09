@@ -62,13 +62,45 @@ def get_today():
 
     return jsonify(today_action)
 
+@app.get("/api/discoveries")
+def get_discoveries():
+    actions = {action["id"]: action for action in load_actions()}
+
+    connection = get_db_connection()
+
+    rows = connection.execute(
+        """
+        SELECT
+            id,
+            action_id,
+            date,
+            content,
+            image_path,
+            emotion,
+            reflection,
+            ai_question
+        FROM discoveries
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    discoveries = []
+
+    for row in rows:
+        item = dict(row)
+
+        action = actions.get(item["action_id"], {})
+
+        item["category"] = action.get("category", "")
+        item["action_title"] = action.get("title", "")
+
+        discoveries.append(item)
+
+    return jsonify(discoveries)
 
 @app.post("/api/discoveries")
-
-@app.get("/uploads/<filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
-
 def create_discovery():
 
     content = request.form.get("content", "").strip()
@@ -114,6 +146,10 @@ def create_discovery():
         "id": discovery_id,
         "message": "발견이 저장되었습니다."
     }), 201
+
+@app.get("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 if __name__ == "__main__":

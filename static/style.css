@@ -169,3 +169,48 @@ textarea:focus {
     color: white;
     border-color: #222;
 }
+
+#history-list {
+    width: 100%;
+    max-width: 520px;
+    margin: 20px 0 30px;
+}
+
+.history-card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.history-action {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 12px;
+}
+
+.history-content {
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.history-emotion {
+    font-size: 14px;
+    color: #666;
+}
+
+.history-image {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-top: 14px;
+}

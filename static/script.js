@@ -4,11 +4,15 @@ const backButton = document.getElementById("back-button");
 const saveButton = document.getElementById("save-button");
 const recordBackButton = document.getElementById("record-back-button");
 const homeButton = document.getElementById("home-button");
+const historyButton = document.getElementById("history-button");
+const historyBackButton = document.getElementById("history-back-button");
 
 const homeScreen = document.getElementById("home-screen");
 const missionScreen = document.getElementById("mission-screen");
 const recordScreen = document.getElementById("record-screen");
 const completeScreen = document.getElementById("complete-screen");
+const historyScreen = document.getElementById("history-screen");
+const historyList = document.getElementById("history-list");
 
 const category = document.getElementById("category");
 const missionTitle = document.getElementById("mission-title");
@@ -148,6 +152,75 @@ homeButton.addEventListener("click", () => {
     });
 
     completeScreen.classList.add("hidden");
+    homeScreen.classList.remove("hidden");
+
+});
+
+historyButton.addEventListener("click", async () => {
+
+    const response = await fetch("/api/discoveries");
+    const discoveries = await response.json();
+
+    historyList.innerHTML = "";
+
+    if (discoveries.length === 0) {
+
+        historyList.textContent = "아직 기록한 발견이 없어요.";
+
+    } else {
+
+        discoveries.forEach((discovery) => {
+
+            const card = document.createElement("div");
+            card.classList.add("history-card");
+
+            const date = document.createElement("p");
+            date.classList.add("history-date");
+            date.textContent = discovery.date;
+
+            const action = document.createElement("p");
+            action.classList.add("history-action");
+            action.textContent = discovery.action_title;
+
+            const content = document.createElement("p");
+            content.classList.add("history-content");
+            content.textContent = discovery.content;
+
+            card.appendChild(date);
+            card.appendChild(action);
+            card.appendChild(content);
+
+            if (discovery.emotion) {
+
+                const emotion = document.createElement("p");
+                emotion.classList.add("history-emotion");
+                emotion.textContent = discovery.emotion;
+
+                card.appendChild(emotion);
+            }
+
+            if (discovery.image_path) {
+
+                const image = document.createElement("img");
+                image.src = discovery.image_path;
+                image.classList.add("history-image");
+
+                card.appendChild(image);
+            }
+
+            historyList.appendChild(card);
+        });
+    }
+
+    homeScreen.classList.add("hidden");
+    historyScreen.classList.remove("hidden");
+
+});
+
+
+historyBackButton.addEventListener("click", () => {
+
+    historyScreen.classList.add("hidden");
     homeScreen.classList.remove("hidden");
 
 });
