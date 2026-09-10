@@ -231,7 +231,7 @@ textarea:focus {
     margin: 0;
     font-size: 17px;
     line-height: 1.7;
-    color: #888;
+    color: #222;
 }
 
 .history-reflection {
@@ -320,7 +320,7 @@ textarea:focus {
 /* 상세 화면의 AI 질문 */
 
 .detail-section .history-question {
-    color: #888;
+    color: #222;
 }
 
 
