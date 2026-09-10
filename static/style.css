@@ -170,6 +170,9 @@ textarea:focus {
     border-color: #222;
 }
 
+
+/* 지난 발견 */
+
 #history-list {
     width: 100%;
     max-width: 520px;
@@ -182,6 +185,13 @@ textarea:focus {
     padding: 22px;
     margin-bottom: 16px;
     text-align: left;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.history-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .history-date {
@@ -203,8 +213,10 @@ textarea:focus {
 }
 
 .history-emotion {
-    font-size: 14px;
-    color: #666;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #222;
+    margin: 0;
 }
 
 .history-image {
@@ -216,21 +228,147 @@ textarea:focus {
 }
 
 .history-question {
-    margin-top: 18px;
-    font-size: 14px;
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
     color: #888;
-    line-height: 1.6;
 }
 
 .history-reflection {
-    margin-top: 8px;
-    font-size: 16px;
+    margin: 0;
+    font-size: 17px;
     line-height: 1.7;
+    color: #222;
 }
 
-.chain-message {
+.history-chain {
+    margin: 16px 0;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+.history-chain-text {
+    margin: 0;
     font-size: 13px;
+    color: #999;
+}
+
+
+/* 기록 화면 */
+
+.record-guide {
+    font-size: 14px;
+    line-height: 1.7;
     color: #888;
-    margin-bottom: 12px;
-    letter-spacing: 0.5px;
+    margin: -4px 0 18px;
+}
+
+.photo-guide {
+    font-size: 13px;
+    color: #999;
+    margin: 2px 0 12px;
+}
+
+
+/* 발견 상세 */
+
+#detail-screen {
+    align-items: center;
+}
+
+#detail-screen > h2,
+#detail-screen > p,
+#detail-screen > img,
+#detail-screen > button {
+    width: 100%;
+    max-width: 500px;
+}
+
+#detail-screen > h2 {
+    text-align: center;
+}
+
+#detail-screen > #detail-action-description {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #222;
+    margin-bottom: 0;
+}
+
+.detail-section {
+    width: 100%;
+    max-width: 500px;
+    margin: 28px 0 0;
+    text-align: left;
+}
+
+.detail-section h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: normal;
+    color: #888;
+}
+
+.detail-section p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #222;
+}
+
+
+/* 상세 화면의 AI 질문 */
+
+.detail-section .history-question {
+    color: #888;
+}
+
+
+/* 상세 화면의 사용자 답변 */
+
+.detail-section .history-reflection,
+.detail-section .history-emotion {
+    color: #222;
+}
+
+
+/* 이전 발견 */
+
+#detail-previous {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+
+/* 모바일 */
+
+@media (max-width: 600px) {
+
+    .container {
+        padding: 28px 18px;
+    }
+
+    h1 {
+        font-size: 34px;
+    }
+
+    h2 {
+        font-size: 26px;
+    }
+
+    .screen {
+        min-height: 85vh;
+    }
+
+    .detail-section {
+        max-width: 100%;
+    }
+
+    #detail-screen > h2,
+    #detail-screen > p,
+    #detail-screen > img,
+    #detail-screen > button {
+        max-width: 100%;
+    }
+
 }

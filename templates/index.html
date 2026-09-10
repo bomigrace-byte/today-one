@@ -54,18 +54,6 @@
 
         </section>
 
-            <p id="mission-description"></p>
-
-            <button id="done-button">
-                해봤어요
-            </button>
-
-            <button id="back-button" class="secondary-button">
-                돌아가기
-            </button>
-
-        </section>
-
 
         <!-- 발견 기록 화면 -->
         <section id="record-screen" class="screen hidden">
@@ -74,9 +62,14 @@
 
         <h2>무엇을 발견했나요?</h2>
 
+        <p class="record-guide">
+            눈에 들어온 것, 새롭게 알게 된 것,<br>
+            그냥 기억해두고 싶은 것도 괜찮아요.
+        </p>
+
         <textarea
             id="discovery-input"
-            placeholder="발견한 것을 자유롭게 적어보세요."
+            placeholder="예상하지 못했던 것 하나를 적어보세요."
         ></textarea>
 
         <label for="photo-input" class="photo-button">
@@ -95,7 +88,7 @@
             alt="선택한 사진 미리보기"
         >
 
-        <p class="emotion-title">그걸 발견하고 어떤 생각이 들었나요?</p>
+        <p class="emotion-title">그때 어떤 느낌이었나요?</p>
 
         <div class="emotion-list">
 
@@ -153,6 +146,57 @@
             </button>
         </section>
 
+        <!-- 발견 상세 화면 -->
+        <section id="detail-screen" class="screen hidden">
+
+            <p id="detail-date" class="history-date"></p>
+
+            <p id="detail-category" class="category"></p>
+
+            <h2 id="detail-action-title"></h2>
+
+            <p id="detail-action-description"></p>
+
+            <div id="detail-previous" class="detail-section hidden">
+                <h3>이전 발견에서 이어졌어요</h3>
+                <p id="detail-previous-content"></p>
+            </div>
+
+            <div class="detail-section">
+                <h3>무엇을 발견했나요?</h3>
+                <p id="detail-content"></p>
+            </div>
+
+
+            <div class="detail-section">
+                <h3>그때 어떤 느낌이었나요?</h3>
+                <p id="detail-emotion" class="history-emotion"></p>
+            </div>
+
+
+            <img
+                id="detail-image"
+                class="history-image hidden"
+                alt="발견 기록 사진"
+            >
+
+
+            <div class="detail-section">
+                <h3>AI가 던진 질문</h3>
+                <p id="detail-question" class="history-question"></p>
+            </div>
+
+            <div class="detail-section">
+                <h3>AI 질문에 대한 나의 생각</h3>
+                <p id="detail-reflection" class="history-reflection"></p>
+            </div>
+
+
+            <button id="detail-back-button" class="secondary-button">
+                돌아가기
+            </button>
+
+        </section>
 
         <section id="reflection-screen" class="screen hidden">
         <p class="eyebrow">ONE MORE QUESTION</p>
