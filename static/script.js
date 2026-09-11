@@ -28,6 +28,10 @@ const detailEmotion = document.getElementById("detail-emotion");
 const detailQuestion = document.getElementById("detail-question");
 const detailReflection = document.getElementById("detail-reflection");
 
+const detailPrevious = document.getElementById("detail-previous");
+const previousDiscoveryButton = document.getElementById("previous-discovery-button");
+const detailPreviousContent = document.getElementById("detail-previous-content");
+
 const category = document.getElementById("category");
 const missionTitle = document.getElementById("mission-title");
 const missionDescription = document.getElementById("mission-description");
@@ -49,11 +53,37 @@ let selectedEmotion = "";
 let currentDiscoveryId = null;
 
 
+// 감정에 맞는 질문
+function getEmotionQuestion(emotion) {
+
+    if (!emotion) {
+        return "";
+    }
+
+    if (emotion.includes("좋았다")) {
+        return "그때 기분은 어땠나요?";
+    }
+
+    if (emotion.includes("신기했다")) {
+        return "그때 어떤 느낌이었나요?";
+    }
+
+    if (emotion.includes("궁금해졌다")) {
+        return "그때 어떤 느낌이었나요?";
+    }
+
+    if (emotion.includes("별 생각 없었다")) {
+        return "그때 어떤 느낌이었나요?";
+    }
+
+    return "그때 어떤 느낌이었나요?";
+}
+
+
 // 기록 화면 초기화
 function resetRecordForm() {
 
     discoveryInput.value = "";
-
     photoInput.value = "";
 
     photoPreview.src = "";
@@ -62,13 +92,10 @@ function resetRecordForm() {
     reflectionInput.value = "";
 
     savedDiscovery.textContent = "";
-
     aiQuestion.textContent = "";
 
     selectedEmotion = "";
-
     currentDiscoveryId = null;
-
 
     emotionButtons.forEach((button) => {
         button.classList.remove("selected");
@@ -84,65 +111,38 @@ drawButton.addEventListener("click", async () => {
         drawButton.disabled = true;
         drawButton.textContent = "하나 고르는 중...";
 
-
-        const response =
-            await fetch("/api/today");
-
+        const response = await fetch("/api/today");
 
         if (!response.ok) {
-
             throw new Error(
                 `오늘의 행동 요청 실패: ${response.status}`
             );
-
         }
 
-
-        const action =
-            await response.json();
-
+        const action = await response.json();
 
         currentAction = action;
 
-
-        category.textContent =
-            action.category;
-
-        missionTitle.textContent =
-            action.title;
-
-        missionDescription.textContent =
-            action.description;
-
+        category.textContent = action.category || "";
+        missionTitle.textContent = action.title || "";
+        missionDescription.textContent = action.description || "";
 
         if (action.personalized) {
 
             chainMessage.textContent =
-                action.chain_message;
+                action.chain_message || "지난 발견에서 이어진 행동이에요.";
 
-            chainMessage.classList.remove(
-                "hidden"
-            );
+            chainMessage.classList.remove("hidden");
 
         } else {
 
             chainMessage.textContent = "";
-
-            chainMessage.classList.add(
-                "hidden"
-            );
+            chainMessage.classList.add("hidden");
 
         }
 
-
-        homeScreen.classList.add(
-            "hidden"
-        );
-
-        missionScreen.classList.remove(
-            "hidden"
-        );
-
+        homeScreen.classList.add("hidden");
+        missionScreen.classList.remove("hidden");
 
     } catch (error) {
 
@@ -155,13 +155,10 @@ drawButton.addEventListener("click", async () => {
             "오늘의 행동을 가져오지 못했어요. 잠시 후 다시 시도해주세요."
         );
 
-
     } finally {
 
         drawButton.disabled = false;
-
-        drawButton.textContent =
-            "✦ 하나 뽑기";
+        drawButton.textContent = "✦ 하나 뽑기";
 
     }
 
@@ -173,13 +170,8 @@ doneButton.addEventListener("click", () => {
 
     resetRecordForm();
 
-    missionScreen.classList.add(
-        "hidden"
-    );
-
-    recordScreen.classList.remove(
-        "hidden"
-    );
+    missionScreen.classList.add("hidden");
+    recordScreen.classList.remove("hidden");
 
 });
 
@@ -187,13 +179,8 @@ doneButton.addEventListener("click", () => {
 // 미션 화면에서 돌아가기
 backButton.addEventListener("click", () => {
 
-    missionScreen.classList.add(
-        "hidden"
-    );
-
-    homeScreen.classList.remove(
-        "hidden"
-    );
+    missionScreen.classList.add("hidden");
+    homeScreen.classList.remove("hidden");
 
 });
 
@@ -201,23 +188,14 @@ backButton.addEventListener("click", () => {
 // 사진 선택
 photoInput.addEventListener("change", () => {
 
-    const file =
-        photoInput.files[0];
-
+    const file = photoInput.files[0];
 
     if (file) {
 
-        const imageUrl =
-            URL.createObjectURL(file);
+        const imageUrl = URL.createObjectURL(file);
 
-
-        photoPreview.src =
-            imageUrl;
-
-
-        photoPreview.classList.remove(
-            "hidden"
-        );
+        photoPreview.src = imageUrl;
+        photoPreview.classList.remove("hidden");
 
     }
 
@@ -230,21 +208,12 @@ emotionButtons.forEach((button) => {
     button.addEventListener("click", () => {
 
         emotionButtons.forEach((item) => {
-
-            item.classList.remove(
-                "selected"
-            );
-
+            item.classList.remove("selected");
         });
 
+        button.classList.add("selected");
 
-        button.classList.add(
-            "selected"
-        );
-
-
-        selectedEmotion =
-            button.dataset.emotion;
+        selectedEmotion = button.dataset.emotion;
 
     });
 
@@ -254,9 +223,7 @@ emotionButtons.forEach((button) => {
 // 발견 기록 저장
 saveButton.addEventListener("click", async () => {
 
-    const discovery =
-        discoveryInput.value.trim();
-
+    const discovery = discoveryInput.value.trim();
 
     if (!discovery) {
 
@@ -268,7 +235,6 @@ saveButton.addEventListener("click", async () => {
 
     }
 
-
     if (!currentAction) {
 
         alert(
@@ -279,42 +245,53 @@ saveButton.addEventListener("click", async () => {
 
     }
 
-
     try {
 
         saveButton.disabled = true;
+        saveButton.textContent = "저장하는 중...";
 
-        saveButton.textContent =
-            "저장하는 중...";
+        const formData = new FormData();
 
-
-        const formData =
-            new FormData();
-
+        const actionId =
+            Number.isInteger(currentAction.id)
+                ? currentAction.id
+                : "";
 
         formData.append(
             "action_id",
-            currentAction.id
+            actionId
         );
 
+        // 실제로 오늘 사용자에게 보여준 행동을 저장
+        formData.append(
+            "action_title",
+            currentAction.title || ""
+        );
+
+        formData.append(
+            "action_description",
+            currentAction.description || ""
+        );
+
+        formData.append(
+            "action_category",
+            currentAction.category || ""
+        );
 
         formData.append(
             "content",
             discovery
         );
 
-
         formData.append(
             "emotion",
             selectedEmotion
         );
 
-
         formData.append(
             "previous_discovery_id",
             currentAction.previous_discovery_id ?? ""
         );
-
 
         if (photoInput.files[0]) {
 
@@ -325,20 +302,15 @@ saveButton.addEventListener("click", async () => {
 
         }
 
+        const response = await fetch(
+            "/api/discoveries",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
 
-        const response =
-            await fetch(
-                "/api/discoveries",
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
-
-
-        const result =
-            await response.json();
-
+        const result = await response.json();
 
         if (!response.ok) {
 
@@ -349,38 +321,27 @@ saveButton.addEventListener("click", async () => {
 
         }
 
+        currentDiscoveryId = result.id;
 
-        currentDiscoveryId =
-            result.id;
-
-
-        savedDiscovery.textContent =
-            discovery;
+        savedDiscovery.textContent = discovery;
 
 
-        // 이번 발견에 대한 AI 질문 생성
-        const aiResponse =
-            await fetch(
-                "/api/ai/question",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-                    body: JSON.stringify({
-                        discovery_id:
-                            currentDiscoveryId,
-                        discovery:
-                            discovery
-                    })
-                }
-            );
+        // 반드시 방금 생성된 discovery_id에 대해 질문 생성
+        const aiResponse = await fetch(
+            "/api/ai/question",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    discovery_id: currentDiscoveryId,
+                    discovery: discovery
+                })
+            }
+        );
 
-
-        const aiResult =
-            await aiResponse.json();
-
+        const aiResult = await aiResponse.json();
 
         if (!aiResponse.ok) {
 
@@ -391,18 +352,11 @@ saveButton.addEventListener("click", async () => {
 
         }
 
-
         aiQuestion.textContent =
-            aiResult.question;
+            aiResult.question || "";
 
-
-        recordScreen.classList.add(
-            "hidden"
-        );
-
-        reflectionScreen.classList.remove(
-            "hidden"
-        );
+        recordScreen.classList.add("hidden");
+        reflectionScreen.classList.remove("hidden");
 
     } catch (error) {
 
@@ -413,13 +367,10 @@ saveButton.addEventListener("click", async () => {
 
         alert(error.message);
 
-
     } finally {
 
         saveButton.disabled = false;
-
-        saveButton.textContent =
-            "기록하기";
+        saveButton.textContent = "기록하기";
 
     }
 
@@ -429,13 +380,8 @@ saveButton.addEventListener("click", async () => {
 // 기록 화면에서 돌아가기
 recordBackButton.addEventListener("click", () => {
 
-    recordScreen.classList.add(
-        "hidden"
-    );
-
-    missionScreen.classList.remove(
-        "hidden"
-    );
+    recordScreen.classList.add("hidden");
+    missionScreen.classList.remove("hidden");
 
 });
 
@@ -444,17 +390,10 @@ recordBackButton.addEventListener("click", () => {
 homeButton.addEventListener("click", () => {
 
     resetRecordForm();
-
     currentAction = null;
 
-
-    completeScreen.classList.add(
-        "hidden"
-    );
-
-    homeScreen.classList.remove(
-        "hidden"
-    );
+    completeScreen.classList.add("hidden");
+    homeScreen.classList.remove("hidden");
 
 });
 
@@ -464,11 +403,9 @@ historyButton.addEventListener("click", async () => {
 
     try {
 
-        const response =
-            await fetch(
-                "/api/discoveries"
-            );
-
+        const response = await fetch(
+            "/api/discoveries"
+        );
 
         if (!response.ok) {
 
@@ -478,13 +415,9 @@ historyButton.addEventListener("click", async () => {
 
         }
 
-
-        const discoveries =
-            await response.json();
-
+        const discoveries = await response.json();
 
         historyList.innerHTML = "";
-
 
         if (discoveries.length === 0) {
 
@@ -493,239 +426,255 @@ historyButton.addEventListener("click", async () => {
 
         } else {
 
-            discoveries.forEach(
-                (discovery) => {
+            discoveries.forEach((discovery) => {
 
-                    const card =
-                        document.createElement(
-                            "div"
-                        );
+                const card =
+                    document.createElement("div");
 
+                card.classList.add(
+                    "history-card"
+                );
 
-                    card.classList.add(
-                        "history-card"
-                    );
+                card.addEventListener(
+                    "click",
+                    () => {
 
-
-                    card.addEventListener(
-                        "click",
-                        () => {
-
-                            showDiscoveryDetail(
-                                discovery.id
-                            );
-
-                        }
-                    );
-
-
-                    const date =
-                        document.createElement(
-                            "p"
-                        );
-
-                    date.classList.add(
-                        "history-date"
-                    );
-
-                    date.textContent =
-                        discovery.date;
-
-
-                    const action =
-                        document.createElement(
-                            "p"
-                        );
-
-                    action.classList.add(
-                        "history-action"
-                    );
-
-                    action.textContent =
-                        discovery.action_title;
-
-
-                    const content =
-                        document.createElement(
-                            "p"
-                        );
-
-                    content.classList.add(
-                        "history-content"
-                    );
-
-                    content.textContent =
-                        discovery.content;
-
-
-                    card.appendChild(date);
-                    card.appendChild(action);
-                    card.appendChild(content);
-
-
-                    // 연쇄 사건
-                    if (
-                        discovery.previous_discovery
-                    ) {
-
-                        const chain =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        chain.classList.add(
-                            "history-chain"
-                        );
-
-
-                        const chainText =
-                            document.createElement(
-                                "p"
-                            );
-
-
-                        chainText.classList.add(
-                            "history-chain-text"
-                        );
-
-
-                        chainText.textContent =
-                            "← 이전 발견에서 이어졌어요";
-
-
-                        chain.appendChild(
-                            chainText
-                        );
-
-
-                        card.appendChild(
-                            chain
+                        showDiscoveryDetail(
+                            discovery.id
                         );
 
                     }
+                );
 
 
-                    // 실제 저장된 AI 질문만 표시
-                    if (discovery.ai_question) {
+                // 날짜
+                const date =
+                    document.createElement("p");
 
-                        const question =
-                            document.createElement(
-                                "p"
-                            );
+                date.classList.add(
+                    "history-date"
+                );
 
+                date.textContent =
+                    discovery.date;
 
-                        question.classList.add(
-                            "history-question"
-                        );
-
-
-                        question.textContent =
-                            discovery.ai_question;
+                card.appendChild(date);
 
 
-                        card.appendChild(
-                            question
-                        );
+                // 그날 실제로 했던 행동
+                const action =
+                    document.createElement("p");
 
-                    }
+                action.classList.add(
+                    "history-action"
+                );
 
+                action.textContent =
+                    discovery.action_title ||
+                    "오늘의 행동";
 
-                    // 실제 저장된 생각만 표시
-                    if (discovery.reflection) {
-
-                        const reflection =
-                            document.createElement(
-                                "p"
-                            );
-
-
-                        reflection.classList.add(
-                            "history-reflection"
-                        );
+                card.appendChild(action);
 
 
-                        reflection.textContent =
-                            discovery.reflection;
+                // 발견 질문
+                const discoveryQuestion =
+                    document.createElement("p");
+
+                discoveryQuestion.classList.add(
+                    "history-discovery-label"
+                );
+
+                discoveryQuestion.textContent =
+                    "무엇이 있었나요?";
+
+                card.appendChild(
+                    discoveryQuestion
+                );
 
 
-                        card.appendChild(
-                            reflection
-                        );
+                // 내가 발견한 것
+                const content =
+                    document.createElement("p");
 
-                    }
+                content.classList.add(
+                    "history-content"
+                );
 
+                content.textContent =
+                    discovery.content;
 
-                    if (discovery.emotion) {
-
-                        const emotion =
-                            document.createElement(
-                                "p"
-                            );
-
-
-                        emotion.classList.add(
-                            "history-emotion"
-                        );
+                card.appendChild(content);
 
 
-                        emotion.textContent =
-                            discovery.emotion;
+                // 연쇄 사건
+                if (discovery.previous_discovery) {
 
+                    const chain =
+                        document.createElement("div");
 
-                        card.appendChild(
-                            emotion
-                        );
+                    chain.classList.add(
+                        "history-chain"
+                    );
 
-                    }
+                    const chainText =
+                        document.createElement("p");
 
+                    chainText.classList.add(
+                        "history-chain-text"
+                    );
 
-                    if (discovery.image_path) {
+                    chainText.textContent =
+                        "↳ 이전 발견에서 이어졌어요";
 
-                        const image =
-                            document.createElement(
-                                "img"
-                            );
+                    chain.appendChild(
+                        chainText
+                    );
 
-
-                        image.src =
-                            discovery.image_path;
-
-
-                        image.classList.add(
-                            "history-image"
-                        );
-
-
-                        image.alt =
-                            "발견 기록 사진";
-
-
-                        card.appendChild(
-                            image
-                        );
-
-                    }
-
-
-                    historyList.appendChild(
-                        card
+                    card.appendChild(
+                        chain
                     );
 
                 }
-            );
+
+
+                // 실제 해당 기록에 저장된 AI 질문
+                if (discovery.ai_question) {
+
+                    const questionLabel =
+                        document.createElement("p");
+
+                    questionLabel.classList.add(
+                        "history-ai-label"
+                    );
+
+                    questionLabel.textContent =
+                        "AI의 질문";
+
+                    const question =
+                        document.createElement("p");
+
+                    question.classList.add(
+                        "history-question"
+                    );
+
+                    question.textContent =
+                        discovery.ai_question;
+
+                    card.appendChild(
+                        questionLabel
+                    );
+
+                    card.appendChild(
+                        question
+                    );
+
+                }
+
+
+                // 실제 해당 기록에 저장된 나의 생각
+                if (discovery.reflection) {
+
+                    const reflectionLabel =
+                        document.createElement("p");
+
+                    reflectionLabel.classList.add(
+                        "history-reflection-label"
+                    );
+
+                    reflectionLabel.textContent =
+                        "나의 생각";
+
+                    const reflection =
+                        document.createElement("p");
+
+                    reflection.classList.add(
+                        "history-reflection"
+                    );
+
+                    reflection.textContent =
+                        discovery.reflection;
+
+                    card.appendChild(
+                        reflectionLabel
+                    );
+
+                    card.appendChild(
+                        reflection
+                    );
+
+                }
+
+
+                // 감정 질문 + 내가 선택한 감정
+                if (discovery.emotion) {
+
+                    const emotionQuestion =
+                        document.createElement("p");
+
+                    emotionQuestion.classList.add(
+                        "history-emotion-label"
+                    );
+
+                    emotionQuestion.textContent =
+                        getEmotionQuestion(
+                            discovery.emotion
+                        );
+
+                    card.appendChild(
+                        emotionQuestion
+                    );
+
+
+                    const emotion =
+                        document.createElement("p");
+
+                    emotion.classList.add(
+                        "history-emotion"
+                    );
+
+                    emotion.textContent =
+                        discovery.emotion;
+
+                    card.appendChild(
+                        emotion
+                    );
+
+                }
+
+
+                // 사진
+                if (discovery.image_path) {
+
+                    const image =
+                        document.createElement("img");
+
+                    image.src =
+                        discovery.image_path;
+
+                    image.classList.add(
+                        "history-image"
+                    );
+
+                    image.alt =
+                        "발견 기록 사진";
+
+                    card.appendChild(
+                        image
+                    );
+
+                }
+
+
+                historyList.appendChild(
+                    card
+                );
+
+            });
 
         }
 
-
-        homeScreen.classList.add(
-            "hidden"
-        );
-
-        historyScreen.classList.remove(
-            "hidden"
-        );
-
+        homeScreen.classList.add("hidden");
+        historyScreen.classList.remove("hidden");
 
     } catch (error) {
 
@@ -748,13 +697,8 @@ historyBackButton.addEventListener(
     "click",
     () => {
 
-        historyScreen.classList.add(
-            "hidden"
-        );
-
-        homeScreen.classList.remove(
-            "hidden"
-        );
+        historyScreen.classList.add("hidden");
+        homeScreen.classList.remove("hidden");
 
     }
 );
@@ -768,7 +712,6 @@ reflectionSaveButton.addEventListener(
         const reflection =
             reflectionInput.value.trim();
 
-
         if (!reflection) {
 
             alert(
@@ -778,7 +721,6 @@ reflectionSaveButton.addEventListener(
             return;
 
         }
-
 
         if (!currentDiscoveryId) {
 
@@ -790,36 +732,29 @@ reflectionSaveButton.addEventListener(
 
         }
 
-
         try {
 
-            reflectionSaveButton.disabled =
-                true;
+            reflectionSaveButton.disabled = true;
 
             reflectionSaveButton.textContent =
                 "저장하는 중...";
 
-
-            const response =
-                await fetch(
-                    `/api/discoveries/${currentDiscoveryId}/reflection`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-                        body: JSON.stringify({
-                            reflection:
-                                reflection
-                        })
-                    }
-                );
-
+            const response = await fetch(
+                `/api/discoveries/${currentDiscoveryId}/reflection`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        reflection: reflection
+                    })
+                }
+            );
 
             const result =
                 await response.json();
-
 
             if (!response.ok) {
 
@@ -830,9 +765,7 @@ reflectionSaveButton.addEventListener(
 
             }
 
-
             reflectionInput.value = "";
-
 
             reflectionScreen.classList.add(
                 "hidden"
@@ -841,7 +774,6 @@ reflectionSaveButton.addEventListener(
             completeScreen.classList.remove(
                 "hidden"
             );
-
 
         } catch (error) {
 
@@ -852,11 +784,9 @@ reflectionSaveButton.addEventListener(
 
             alert(error.message);
 
-
         } finally {
 
-            reflectionSaveButton.disabled =
-                false;
+            reflectionSaveButton.disabled = false;
 
             reflectionSaveButton.textContent =
                 "답변 저장";
@@ -872,7 +802,6 @@ reflectionSkipButton.addEventListener(
     "click",
     () => {
 
-        // 답변을 저장하지 않고 바로 완료
         reflectionInput.value = "";
 
         reflectionScreen.classList.add(
@@ -888,21 +817,16 @@ reflectionSkipButton.addEventListener(
 
 
 // 발견 상세 보기
-async function showDiscoveryDetail(
-    discoveryId
-) {
+async function showDiscoveryDetail(discoveryId) {
 
     try {
 
-        const response =
-            await fetch(
-                `/api/discoveries/${discoveryId}`
-            );
-
+        const response = await fetch(
+            `/api/discoveries/${discoveryId}`
+        );
 
         const discovery =
             await response.json();
-
 
         if (!response.ok) {
 
@@ -913,69 +837,52 @@ async function showDiscoveryDetail(
 
         }
 
-
         detailDate.textContent =
             discovery.date;
-
 
         detailCategory.textContent =
             discovery.category;
 
-
         detailActionTitle.textContent =
             discovery.action_title;
 
-
         detailActionDescription.textContent =
             discovery.action_description;
-
 
         detailContent.textContent =
             discovery.content;
 
 
         // 이전 발견
-        const previousSection =
-            document.getElementById(
-                "detail-previous"
+        if (discovery.previous_discovery) {
+
+            detailPrevious.classList.remove(
+                "hidden"
             );
 
+            detailPreviousContent.textContent =
+                discovery.previous_discovery.content;
 
-        const previousContent =
-            document.getElementById(
-                "detail-previous-content"
+            previousDiscoveryButton.onclick =
+                () => {
+
+                    showDiscoveryDetail(
+                        discovery.previous_discovery.id
+                    );
+
+                };
+
+        } else {
+
+            detailPrevious.classList.add(
+                "hidden"
             );
 
+            detailPreviousContent.textContent =
+                "";
 
-        if (
-            previousSection &&
-            previousContent
-        ) {
-
-            if (
-                discovery.previous_discovery
-            ) {
-
-                previousSection.classList.remove(
-                    "hidden"
-                );
-
-
-                previousContent.textContent =
-                    discovery.previous_discovery.content;
-
-
-            } else {
-
-                previousSection.classList.add(
-                    "hidden"
-                );
-
-
-                previousContent.textContent =
-                    "";
-
-            }
+            previousDiscoveryButton.onclick =
+                null;
 
         }
 
@@ -1003,23 +910,19 @@ async function showDiscoveryDetail(
 
         // 감정
         detailEmotion.textContent =
-            discovery.emotion
-                ? discovery.emotion
-                : "";
+            discovery.emotion || "";
 
 
-        // AI 질문
+        // 이 기록에 저장된 AI 질문
         detailQuestion.textContent =
-            discovery.ai_question
-                ? discovery.ai_question
-                : "아직 AI 질문이 없습니다.";
+            discovery.ai_question ||
+            "아직 AI 질문이 없습니다.";
 
 
-        // 생각
+        // 이 기록에 저장된 나의 생각
         detailReflection.textContent =
-            discovery.reflection
-                ? discovery.reflection
-                : "아직 남긴 생각이 없습니다.";
+            discovery.reflection ||
+            "아직 남긴 생각이 없습니다.";
 
 
         historyScreen.classList.add(
@@ -1029,7 +932,6 @@ async function showDiscoveryDetail(
         detailScreen.classList.remove(
             "hidden"
         );
-
 
     } catch (error) {
 

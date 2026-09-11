@@ -21,9 +21,9 @@ app = Flask(__name__)
 
 client = genai.Client(
     http_options=types.HttpOptions(
-        timeout=8000,
+        timeout=30000,
         retry_options=types.HttpRetryOptions(
-            attempts=1
+            attempts=2
         )
     )
 )
@@ -58,7 +58,10 @@ def init_db():
             emotion TEXT,
             reflection TEXT,
             ai_question TEXT,
-            previous_discovery_id INTEGER
+            previous_discovery_id INTEGER,
+            action_title TEXT,
+            action_description TEXT,
+            action_category TEXT
         )
     """)
 
@@ -76,6 +79,27 @@ def init_db():
         connection.execute("""
             ALTER TABLE discoveries
             ADD COLUMN previous_discovery_id INTEGER
+        """)
+
+    if "action_title" not in column_names:
+
+        connection.execute("""
+            ALTER TABLE discoveries
+            ADD COLUMN action_title TEXT
+        """)
+
+    if "action_description" not in column_names:
+
+        connection.execute("""
+            ALTER TABLE discoveries
+            ADD COLUMN action_description TEXT
+        """)
+
+    if "action_category" not in column_names:
+
+        connection.execute("""
+            ALTER TABLE discoveries
+            ADD COLUMN action_category TEXT
         """)
 
     connection.commit()
@@ -117,6 +141,59 @@ def get_previous_discovery(
         return dict(row)
 
     return None
+
+
+def parse_optional_int(value):
+
+    if value in (None, "", "undefined", "null"):
+        return None
+
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def get_action_info(actions, item):
+
+    stored_title = item.get("action_title")
+    stored_description = item.get("action_description")
+    stored_category = item.get("action_category")
+
+    if stored_title:
+        return {
+            "title": stored_title,
+            "description": stored_description or "",
+            "category": stored_category or ""
+        }
+
+    action_id = parse_optional_int(item.get("action_id"))
+    action = actions.get(action_id, {}) if action_id is not None else {}
+
+    return {
+        "title": action.get("title", "오늘의 행동"),
+        "description": action.get("description", ""),
+        "category": action.get("category", "")
+    }
+
+
+def create_fallback_chain_action(latest_discovery):
+
+    content = latest_discovery.get("content", "")
+
+    return {
+        "category": "discovery",
+        "title": "방금 발견한 것 주변을 다시 살펴보세요.",
+        "description": (
+            f'"{content}"을 발견했던 곳이나 주변을 잠깐 다시 살펴보세요.'
+        ),
+        "difficulty": 1,
+        "estimated_minutes": 3,
+        "tags": ["발견", "관찰"],
+        "personalized": True,
+        "chain_message": "지난 발견에서 이어진 행동이에요.",
+        "previous_discovery_id": latest_discovery["id"]
+    }
 
 
 def is_similar_question(
@@ -308,11 +385,7 @@ difficulty는 1~3 사이의 숫자를 사용하세요.
         )
 
 
-        action = random.choice(actions)
-
-        action["personalized"] = False
-        action["chain_message"] = ""
-        action["previous_discovery_id"] = None
+        action = create_fallback_chain_action(latest_discovery)
 
         return jsonify(action)
 
@@ -341,7 +414,10 @@ def get_discoveries():
             emotion,
             reflection,
             ai_question,
-            previous_discovery_id
+            previous_discovery_id,
+            action_title,
+            action_description,
+            action_category
         FROM discoveries
         ORDER BY id DESC
         """
@@ -356,21 +432,11 @@ def get_discoveries():
         item = dict(row)
 
 
-        action = actions.get(
-            int(item["action_id"]),
-            {}
-        )
+        action = get_action_info(actions, item)
 
-
-        item["category"] = action.get(
-            "category",
-            ""
-        )
-
-        item["action_title"] = action.get(
-            "title",
-            ""
-        )
+        item["category"] = action["category"]
+        item["action_title"] = action["title"]
+        item["action_description"] = action["description"]
 
 
         item["previous_discovery"] = (
@@ -414,7 +480,10 @@ def get_discovery(discovery_id):
             emotion,
             reflection,
             ai_question,
-            previous_discovery_id
+            previous_discovery_id,
+            action_title,
+            action_description,
+            action_category
         FROM discoveries
         WHERE id = ?
         """,
@@ -434,10 +503,7 @@ def get_discovery(discovery_id):
     discovery = dict(row)
 
 
-    action = actions.get(
-        int(discovery["action_id"]),
-        {}
-    )
+    action = get_action_info(actions, discovery)
 
 
     discovery["previous_discovery"] = (
@@ -448,20 +514,9 @@ def get_discovery(discovery_id):
     )
 
 
-    discovery["category"] = action.get(
-        "category",
-        ""
-    )
-
-    discovery["action_title"] = action.get(
-        "title",
-        ""
-    )
-
-    discovery["action_description"] = action.get(
-        "description",
-        ""
-    )
+    discovery["category"] = action["category"]
+    discovery["action_title"] = action["title"]
+    discovery["action_description"] = action["description"]
 
 
     connection.close()
@@ -479,9 +534,27 @@ def create_discovery():
         ""
     ).strip()
 
-    action_id = request.form.get(
-        "action_id"
+    action_id = parse_optional_int(
+        request.form.get("action_id")
     )
+
+    if action_id is None:
+        action_id = 0
+
+    action_title = request.form.get(
+        "action_title",
+        ""
+    ).strip()
+
+    action_description = request.form.get(
+        "action_description",
+        ""
+    ).strip()
+
+    action_category = request.form.get(
+        "action_category",
+        ""
+    ).strip()
 
     emotion = request.form.get(
         "emotion",
@@ -562,9 +635,12 @@ def create_discovery():
             content,
             image_path,
             emotion,
-            previous_discovery_id
+            previous_discovery_id,
+            action_title,
+            action_description,
+            action_category
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             action_id,
@@ -572,7 +648,10 @@ def create_discovery():
             content,
             image_path,
             emotion,
-            previous_discovery_id
+            previous_discovery_id,
+            action_title,
+            action_description,
+            action_category
         )
     )
 

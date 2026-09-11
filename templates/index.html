@@ -33,7 +33,6 @@
 
 
         <!-- 오늘의 행동 화면 -->
-        <!-- 오늘의 행동 화면 -->
         <section id="mission-screen" class="screen hidden">
 
             <p id="chain-message" class="chain-message hidden"></p>
@@ -58,67 +57,68 @@
         <!-- 발견 기록 화면 -->
         <section id="record-screen" class="screen hidden">
 
-        <p class="eyebrow">YOUR DISCOVERY</p>
+            <p class="eyebrow">YOUR DISCOVERY</p>
 
-        <h2>무엇을 발견했나요?</h2>
+            <h2>무엇을 발견했나요?</h2>
 
-        <p class="record-guide">
-            눈에 들어온 것, 새롭게 알게 된 것,<br>
-            그냥 기억해두고 싶은 것도 괜찮아요.
-        </p>
+            <p class="record-guide">
+                눈에 들어온 것, 새롭게 알게 된 것,<br>
+                그냥 기억해두고 싶은 것도 괜찮아요.
+            </p>
 
-        <textarea
-            id="discovery-input"
-            placeholder="예상하지 못했던 것 하나를 적어보세요."
-        ></textarea>
+            <textarea
+                id="discovery-input"
+                placeholder="예상하지 못했던 것 하나를 적어보세요."
+            ></textarea>
 
-        <label for="photo-input" class="photo-button">
-            📷 사진 추가
-        </label>
+            <label for="photo-input" class="photo-button">
+                📷 사진 추가
+            </label>
 
-        <input
-            type="file"
-            id="photo-input"
-            accept="image/*"
-        >
+            <input
+                type="file"
+                id="photo-input"
+                accept="image/*"
+            >
 
-        <img
-            id="photo-preview"
-            class="photo-preview hidden"
-            alt="선택한 사진 미리보기"
-        >
+            <img
+                id="photo-preview"
+                class="photo-preview hidden"
+                alt="선택한 사진 미리보기"
+            >
 
-        <p class="emotion-title">그때 어떤 느낌이었나요?</p>
+            <p class="emotion-title">그때 어떤 느낌이었나요?</p>
 
-        <div class="emotion-list">
+            <div class="emotion-list">
 
-            <button type="button" class="emotion-button" data-emotion="신기했다">
-                🤔 신기했다
+                <button type="button" class="emotion-button" data-emotion="신기했다">
+                    🤔 신기했다
+                </button>
+
+                <button type="button" class="emotion-button" data-emotion="기분이 좋았다">
+                    😊 기분이 좋았다
+                </button>
+
+                <button type="button" class="emotion-button" data-emotion="별 생각 없었다">
+                    😐 별 생각 없었다
+                </button>
+
+                <button type="button" class="emotion-button" data-emotion="궁금해졌다">
+                    🧐 궁금해졌다
+                </button>
+
+            </div>
+
+            <button id="save-button">
+                기록하기
             </button>
 
-            <button type="button" class="emotion-button" data-emotion="기분이 좋았다">
-                😊 기분이 좋았다
+            <button id="record-back-button" class="secondary-button">
+                돌아가기
             </button>
-
-            <button type="button" class="emotion-button" data-emotion="별 생각 없었다">
-                😐 별 생각 없었다
-            </button>
-
-            <button type="button" class="emotion-button" data-emotion="궁금해졌다">
-                🧐 궁금해졌다
-            </button>
-
-        </div>
-
-        <button id="save-button">
-            기록하기
-        </button>
-
-        <button id="record-back-button" class="secondary-button">
-            돌아가기
-        </button>
 
         </section>
+
 
         <!-- 기록 완료 화면 -->
         <section id="complete-screen" class="screen hidden">
@@ -135,8 +135,12 @@
 
         </section>
 
+
+        <!-- 지난 발견 -->
         <section id="history-screen" class="screen hidden">
+
             <p class="eyebrow">MY DISCOVERIES</p>
+
             <h2>지난 발견</h2>
 
             <div id="history-list"></div>
@@ -144,7 +148,9 @@
             <button id="history-back-button" class="secondary-button">
                 처음으로
             </button>
+
         </section>
+
 
         <!-- 발견 상세 화면 -->
         <section id="detail-screen" class="screen hidden">
@@ -157,23 +163,45 @@
 
             <p id="detail-action-description"></p>
 
+
+            <!-- 이전 발견 -->
             <div id="detail-previous" class="detail-section hidden">
+
                 <h3>이전 발견에서 이어졌어요</h3>
-                <p id="detail-previous-content"></p>
+
+                <button
+                    id="previous-discovery-button"
+                    class="previous-discovery-button"
+                    type="button"
+                >
+                    <span id="detail-previous-content"></span>
+                    <span class="previous-discovery-arrow">→</span>
+                </button>
+
             </div>
 
+
+            <!-- 현재 발견 -->
             <div class="detail-section">
+
                 <h3>무엇을 발견했나요?</h3>
+
                 <p id="detail-content"></p>
+
             </div>
 
 
+            <!-- 감정 -->
             <div class="detail-section">
+
                 <h3>그때 어떤 느낌이었나요?</h3>
+
                 <p id="detail-emotion" class="history-emotion"></p>
+
             </div>
 
 
+            <!-- 사진 -->
             <img
                 id="detail-image"
                 class="history-image hidden"
@@ -181,14 +209,23 @@
             >
 
 
+            <!-- AI 질문 -->
             <div class="detail-section">
+
                 <h3>AI가 던진 질문</h3>
+
                 <p id="detail-question" class="history-question"></p>
+
             </div>
 
+
+            <!-- 생각 -->
             <div class="detail-section">
+
                 <h3>AI 질문에 대한 나의 생각</h3>
+
                 <p id="detail-reflection" class="history-reflection"></p>
+
             </div>
 
 
@@ -198,26 +235,31 @@
 
         </section>
 
+
+        <!-- AI 질문 -->
         <section id="reflection-screen" class="screen hidden">
-        <p class="eyebrow">ONE MORE QUESTION</p>
 
-        <h2 id="ai-question"></h2>
+            <p class="eyebrow">ONE MORE QUESTION</p>
 
-        <textarea
-            id="reflection-input"
-            placeholder="떠오르는 생각을 자유롭게 적어보세요."
-        ></textarea>
+            <h2 id="ai-question"></h2>
 
-        <button id="reflection-save-button">
-            답변 저장
-        </button>
+            <textarea
+                id="reflection-input"
+                placeholder="떠오르는 생각을 자유롭게 적어보세요."
+            ></textarea>
 
-        <button id="reflection-skip-button" class="secondary-button">
-            건너뛰기
-        </button>
-    </section>
+            <button id="reflection-save-button">
+                답변 저장
+            </button>
+
+            <button id="reflection-skip-button" class="secondary-button">
+                건너뛰기
+            </button>
+
+        </section>
 
     </main>
+
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
