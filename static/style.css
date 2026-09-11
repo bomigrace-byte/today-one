@@ -390,9 +390,6 @@ textarea:focus {
         0 8px 24px rgba(0, 0, 0, 0.055);
 }
 
-
-/* 날짜 */
-
 .history-date {
     margin: 0 0 20px;
 
@@ -416,33 +413,16 @@ textarea:focus {
 
     font-size: 17px;
     font-weight: 500;
-    line-height: 1.7;
-
-    letter-spacing: -0.2px;
+    line-height: 1.6;
 }
 
 
 /* ========================================
-   발견
+   내가 발견한 것
    ======================================== */
 
-/* 질문 */
-
-.history-discovery-label {
-    margin: 0 0 7px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-    line-height: 1.5;
-    letter-spacing: 0.3px;
-}
-
-
-/* 내가 발견한 것 */
-
 .history-content {
-    margin: 0 0 26px;
+    margin: 0 0 18px;
 
     color: var(--sage);
 
@@ -455,22 +435,12 @@ textarea:focus {
    AI 질문
    ======================================== */
 
-.history-ai-label {
-    margin: 0 0 7px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-    line-height: 1.5;
-    letter-spacing: 0.3px;
-}
-
 .history-question {
-    margin: 0 0 24px;
+    margin: 0 0 18px;
 
     color: var(--muted);
 
-    font-size: 17px;
+    font-size: 15px;
     line-height: 1.7;
 }
 
@@ -479,22 +449,12 @@ textarea:focus {
    나의 생각
    ======================================== */
 
-.history-reflection-label {
-    margin: 0 0 7px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-    line-height: 1.5;
-    letter-spacing: 0.3px;
-}
-
 .history-reflection {
-    margin: 0 0 26px;
+    margin: 0 0 18px;
 
     color: var(--sage);
 
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.7;
 }
 
@@ -503,85 +463,56 @@ textarea:focus {
    감정
    ======================================== */
 
-.history-emotion-label {
-    margin: 0 0 7px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-    line-height: 1.5;
-    letter-spacing: 0.3px;
-}
-
 .history-emotion {
-    margin: 0;
+    margin: 0 0 18px;
 
     color: var(--sage);
 
-    font-size: 17px;
-    line-height: 1.7;
-}
-
-
-/* ========================================
-   사진
-   ======================================== */
-
-.history-image {
-    width: 100%;
-    max-height: 280px;
-
-    margin-top: 20px;
-
-    object-fit: cover;
-
-    border-radius: 14px;
-}
-
-
-/* ========================================
-   연쇄 사건
-   시스템 안내이므로 회색
-   ======================================== */
-
-.history-chain {
-    margin: 0 0 26px;
-    padding-top: 17px;
-
-    border-top: 1px solid var(--line);
-}
-
-.history-chain-text {
-    margin: 0;
-
-    color: var(--muted);
-
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.6;
 }
 
 
 /* ========================================
-   상세 기록
+   이미지
+   ======================================== */
+
+.history-image {
+    display: block;
+
+    width: 100%;
+    max-width: 420px;
+    max-height: 320px;
+
+    margin: 18px 0 0;
+
+    object-fit: cover;
+
+    border-radius: 16px;
+}
+
+
+/* ========================================
+   상세 화면
    ======================================== */
 
 .detail-section {
     width: 100%;
-    max-width: 500px;
+    max-width: 520px;
 
-    margin: 30px 0 0;
+    margin-top: 30px;
 
     text-align: left;
 }
 
 .detail-section h3 {
-    margin: 0 0 9px;
-
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.5;
+    margin: 0 0 10px;
 
     color: var(--muted);
+
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .detail-section p {
@@ -589,26 +520,15 @@ textarea:focus {
 
     font-size: 17px;
     line-height: 1.7;
-
-    color: var(--text);
 }
-
-
-/* 상세 - 발견 질문 */
 
 .detail-section .history-discovery-label {
     color: var(--muted);
 }
 
-
-/* 상세 - 내가 발견한 것 */
-
 .detail-section .history-content {
     color: var(--sage);
 }
-
-
-/* 상세 - AI 질문 */
 
 .detail-section .history-ai-label {
     color: var(--muted);
@@ -619,9 +539,6 @@ textarea:focus {
     color: var(--muted);
 }
 
-
-/* 상세 - 나의 생각 */
-
 .detail-section .history-reflection-label {
     color: var(--muted);
 }
@@ -630,9 +547,6 @@ textarea:focus {
     margin: 0;
     color: var(--sage);
 }
-
-
-/* 상세 - 감정 */
 
 .detail-section .history-emotion-label {
     color: var(--muted);
@@ -695,7 +609,6 @@ textarea:focus {
 
 /* ========================================
    오늘의 행동 - 연쇄 메시지
-   오늘 화면에서는 조금 더 강조
    ======================================== */
 
 .chain-message {
@@ -747,5 +660,62 @@ textarea:focus {
     .history-emotion {
         font-size: 16px;
     }
+}
 
+
+/* ========================================
+   사용자 입력 - 발견
+   ======================================== */
+
+#saved-discovery,
+#detail-content {
+    color: var(--sage) !important;
+}
+
+
+/* ========================================
+   상세 화면 하단 버튼 간격
+   ======================================== */
+
+/*
+   기존에는 돌아가기 버튼이
+   일반 버튼의 기본 margin: 6px만 적용되어
+   바로 위 내용에 붙어 보였습니다.
+
+   상세 화면에서는 내용을 충분히 읽은 뒤
+   다음 행동으로 넘어가는 느낌을 주도록
+   돌아가기 버튼을 아래로 분리합니다.
+*/
+
+#detail-back-button {
+    margin-top: 52px;
+}
+
+
+/*
+   삭제 버튼은 돌아가기와 너무 벌어지지 않도록
+   별도의 간격을 작게 유지합니다.
+*/
+
+.delete-button {
+    width: 180px;
+
+    margin-top: 14px;
+
+    background: transparent;
+    color: var(--muted);
+
+    border: 1px solid var(--line-dark);
+
+    box-shadow: none;
+}
+
+.delete-button:hover {
+    background: var(--card);
+
+    color: #666666;
+
+    border-color: #b8b5ae;
+
+    box-shadow: none;
 }
