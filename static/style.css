@@ -2,27 +2,60 @@
     box-sizing: border-box;
 }
 
+:root {
+    --bg: #f7f5f0;
+    --card: #ffffff;
+
+    --text: #222222;
+    --muted: #888888;
+    --light-muted: #a6a39d;
+
+    --sage: #7d9b82;
+    --sage-dark: #6d8c73;
+    --sage-light: #dce8dc;
+
+    --line: #e8e6e1;
+    --line-dark: #d8d5ce;
+}
+
+
+/* ========================================
+   기본
+   ======================================== */
+
 body {
     margin: 0;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: #f7f5f0;
-    color: #222;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background: var(--bg);
+    color: var(--text);
+
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
     width: 100%;
     max-width: 720px;
+
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 42px 24px;
 }
 
 .screen {
     min-height: 80vh;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     text-align: center;
 }
 
@@ -30,68 +63,171 @@ body {
     display: none;
 }
 
+
+/* ========================================
+   타이포그래피
+   ======================================== */
+
 .eyebrow {
+    margin: 0 0 18px;
+
     font-size: 12px;
+    font-weight: 500;
     letter-spacing: 2px;
-    color: #777;
-    margin-bottom: 20px;
+
+    color: var(--muted);
 }
 
 h1 {
+    margin: 0 0 22px;
+
     font-size: 42px;
-    margin: 0 0 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -1.2px;
+
+    color: var(--text);
 }
 
 h2 {
+    margin: 18px 0;
+
     font-size: 30px;
+    font-weight: 500;
     line-height: 1.5;
-    margin: 20px 0;
+    letter-spacing: -0.6px;
+
+    color: var(--text);
 }
 
 .intro {
-    font-size: 18px;
+    margin: 0 0 38px;
+
+    font-size: 17px;
     line-height: 1.8;
-    color: #666;
-    margin-bottom: 40px;
+
+    color: #666666;
 }
+
+
+/* ========================================
+   버튼
+   ======================================== */
 
 button {
     width: 180px;
     height: 52px;
+
+    margin: 6px;
+    padding: 0 20px;
+
     border: none;
     border-radius: 999px;
-    font-size: 16px;
+
+    background: var(--sage);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+
     cursor: pointer;
-    background: #222;
-    color: white;
-    margin: 6px;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
 }
+
+button:hover {
+    background: var(--sage-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 12px rgba(125, 155, 130, 0.16);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* 보조 버튼 */
 
 .secondary-button {
     background: transparent;
-    color: #555;
-    border: 1px solid #ccc;
+    color: #666666;
+
+    border: 1px solid var(--line-dark);
+
+    box-shadow: none;
 }
+
+.secondary-button:hover {
+    background: var(--card);
+    color: var(--text);
+
+    border-color: #c8c5be;
+
+    box-shadow: none;
+}
+
+
+/* ========================================
+   입력
+   ======================================== */
 
 textarea {
     width: 100%;
     max-width: 500px;
     min-height: 160px;
-    padding: 18px;
-    border: 1px solid #ddd;
-    border-radius: 16px;
-    background: white;
-    font-size: 16px;
-    font-family: inherit;
-    line-height: 1.6;
-    resize: vertical;
+
     margin-bottom: 20px;
+    padding: 18px;
+
+    border: 1px solid #dedbd5;
+    border-radius: 16px;
+
+    background: var(--card);
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.7;
+
+    resize: vertical;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+textarea::placeholder {
+    color: #b0ada6;
 }
 
 textarea:focus {
     outline: none;
-    border-color: #888;
+
+    border-color: var(--sage);
+
+    box-shadow:
+        0 0 0 3px rgba(125, 155, 130, 0.10);
 }
+
+
+/* ========================================
+   사진
+   ======================================== */
 
 #photo-input {
     display: none;
@@ -99,61 +235,123 @@ textarea:focus {
 
 .photo-button {
     display: inline-flex;
+
     width: 180px;
     height: 52px;
+
+    margin: 6px;
+
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
+
+    border: 1px solid var(--line-dark);
     border-radius: 999px;
+
+    background: transparent;
+    color: #666666;
+
     cursor: pointer;
-    color: #555;
-    margin: 6px;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.photo-button:hover {
+    background: var(--card);
+    border-color: #c8c5be;
+    color: var(--text);
 }
 
 .photo-preview {
     width: 200px;
     max-height: 200px;
-    object-fit: cover;
-    border-radius: 16px;
+
     margin: 10px 0 20px;
+
+    object-fit: cover;
+
+    border-radius: 16px;
 }
 
+
+/* ========================================
+   발견 기록
+   ======================================== */
+
 .saved-discovery {
+    width: 100%;
     max-width: 500px;
-    padding: 20px;
-    background: white;
-    border-radius: 16px;
-    line-height: 1.7;
-    color: #555;
+
     margin-bottom: 30px;
+    padding: 20px 22px;
+
+    background: var(--card);
+    border-radius: 16px;
+
+    color: var(--text);
+
+    font-size: 17px;
+    line-height: 1.7;
+
+    text-align: left;
 }
 
 .emotion-title {
     margin-top: 20px;
     margin-bottom: 12px;
-    color: #555;
+
+    color: #666666;
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .emotion-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+
     max-width: 500px;
+
     margin-bottom: 20px;
 }
 
 .emotion-button {
     width: 180px;
     height: 52px;
-    background: white;
-    color: #555;
-    border: 1px solid #ddd;
+
+    background: var(--card);
+    color: #666666;
+
+    border: 1px solid var(--line);
+
+    box-shadow: none;
+}
+
+.emotion-button:hover {
+    background: var(--card);
+
+    color: var(--text);
+
+    border-color: #c8c5be;
+
+    box-shadow: none;
 }
 
 .emotion-button.selected {
-    background: #222;
-    color: white;
-    border-color: #222;
+    background: var(--sage);
+    color: #ffffff;
+
+    border-color: var(--sage);
+
+    box-shadow:
+        0 4px 12px rgba(125, 155, 130, 0.14);
+}
+
+.emotion-button.selected:hover {
+    background: var(--sage-dark);
 }
 
 
@@ -164,16 +362,22 @@ textarea:focus {
 #history-list {
     width: 100%;
     max-width: 520px;
+
     margin: 20px 0 30px;
 }
 
 .history-card {
-    background: white;
+    background: var(--card);
+
     border-radius: 18px;
-    padding: 22px;
+
+    padding: 26px 24px;
     margin-bottom: 16px;
+
     text-align: left;
+
     cursor: pointer;
+
     transition:
         transform 0.15s ease,
         box-shadow 0.15s ease;
@@ -181,30 +385,40 @@ textarea:focus {
 
 .history-card:hover {
     transform: translateY(-2px);
+
     box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.06);
+        0 8px 24px rgba(0, 0, 0, 0.055);
 }
 
 
 /* 날짜 */
 
 .history-date {
+    margin: 0 0 20px;
+
     font-size: 12px;
-    color: #999;
-    margin: 0 0 18px;
+    font-weight: 400;
+
+    color: #999999;
+
+    letter-spacing: 0.2px;
 }
 
 
 /* ========================================
    실제로 했던 행동
-   검정 = 사건의 맥락
    ======================================== */
 
 .history-action {
+    margin: 0 0 26px;
+
+    color: var(--text);
+
     font-size: 17px;
+    font-weight: 500;
     line-height: 1.7;
-    color: #222;
-    margin: 0 0 24px;
+
+    letter-spacing: -0.2px;
 }
 
 
@@ -215,10 +429,12 @@ textarea:focus {
 /* 질문 */
 
 .history-discovery-label {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
+
+    color: var(--muted);
+
     font-size: 12px;
     line-height: 1.5;
-    color: #888;
     letter-spacing: 0.3px;
 }
 
@@ -226,31 +442,36 @@ textarea:focus {
 /* 내가 발견한 것 */
 
 .history-content {
+    margin: 0 0 26px;
+
+    color: var(--sage);
+
     font-size: 17px;
     line-height: 1.7;
-    color: #7d9b82;
-    margin: 0 0 24px;
 }
 
 
 /* ========================================
    AI 질문
-   회색 = AI가 묻는 것
    ======================================== */
 
 .history-ai-label {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
+
+    color: var(--muted);
+
     font-size: 12px;
     line-height: 1.5;
-    color: #888;
     letter-spacing: 0.3px;
 }
 
 .history-question {
-    margin: 0 0 22px;
+    margin: 0 0 24px;
+
+    color: var(--muted);
+
     font-size: 17px;
     line-height: 1.7;
-    color: #888;
 }
 
 
@@ -258,24 +479,23 @@ textarea:focus {
    나의 생각
    ======================================== */
 
-/* 라벨 */
-
 .history-reflection-label {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
+
+    color: var(--muted);
+
     font-size: 12px;
     line-height: 1.5;
-    color: #888;
     letter-spacing: 0.3px;
 }
 
-
-/* 내가 작성한 생각 */
-
 .history-reflection {
-    margin: 0 0 24px;
+    margin: 0 0 26px;
+
+    color: var(--sage);
+
     font-size: 17px;
     line-height: 1.7;
-    color: #7d9b82;
 }
 
 
@@ -283,24 +503,23 @@ textarea:focus {
    감정
    ======================================== */
 
-/* 감정 질문 */
-
 .history-emotion-label {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
+
+    color: var(--muted);
+
     font-size: 12px;
     line-height: 1.5;
-    color: #888;
     letter-spacing: 0.3px;
 }
 
-
-/* 내가 선택한 감정 */
-
 .history-emotion {
+    margin: 0;
+
+    color: var(--sage);
+
     font-size: 17px;
     line-height: 1.7;
-    color: #7d9b82;
-    margin: 0;
 }
 
 
@@ -311,27 +530,34 @@ textarea:focus {
 .history-image {
     width: 100%;
     max-height: 280px;
+
+    margin-top: 20px;
+
     object-fit: cover;
+
     border-radius: 14px;
-    margin-top: 18px;
 }
 
 
 /* ========================================
    연쇄 사건
+   시스템 안내이므로 회색
    ======================================== */
 
 .history-chain {
-    margin: 0 0 24px;
-    padding-top: 16px;
-    border-top: 1px solid #eee;
+    margin: 0 0 26px;
+    padding-top: 17px;
+
+    border-top: 1px solid var(--line);
 }
 
 .history-chain-text {
     margin: 0;
+
+    color: var(--muted);
+
     font-size: 13px;
     line-height: 1.6;
-    color: #7d9b82;
 }
 
 
@@ -342,64 +568,79 @@ textarea:focus {
 .detail-section {
     width: 100%;
     max-width: 500px;
-    margin: 28px 0 0;
+
+    margin: 30px 0 0;
+
     text-align: left;
 }
 
 .detail-section h3 {
-    margin: 0 0 10px;
-    font-size: 14px;
-    font-weight: normal;
-    color: #888;
+    margin: 0 0 9px;
+
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+
+    color: var(--muted);
 }
 
 .detail-section p {
     margin: 0;
+
     font-size: 17px;
     line-height: 1.7;
-    color: #222;
+
+    color: var(--text);
 }
 
 
-/* ========================================
-   상세 화면
-   질문 = 회색
-   내 답변 = 세이지 그린
-   ======================================== */
+/* 상세 - 발견 질문 */
 
 .detail-section .history-discovery-label {
-    color: #888;
+    color: var(--muted);
 }
+
+
+/* 상세 - 내가 발견한 것 */
 
 .detail-section .history-content {
-    color: #7d9b82;
+    color: var(--sage);
 }
 
+
+/* 상세 - AI 질문 */
+
 .detail-section .history-ai-label {
-    color: #888;
+    color: var(--muted);
 }
 
 .detail-section .history-question {
     margin: 0;
-    color: #888;
+    color: var(--muted);
 }
 
+
+/* 상세 - 나의 생각 */
+
 .detail-section .history-reflection-label {
-    color: #888;
+    color: var(--muted);
 }
 
 .detail-section .history-reflection {
     margin: 0;
-    color: #7d9b82;
+    color: var(--sage);
 }
 
+
+/* 상세 - 감정 */
+
 .detail-section .history-emotion-label {
-    color: #888;
+    color: var(--muted);
 }
 
 .detail-section .history-emotion {
     margin: 0;
-    color: #7d9b82;
+    color: var(--sage);
 }
 
 
@@ -410,40 +651,59 @@ textarea:focus {
 .previous-discovery-button {
     width: 100%;
     min-height: 56px;
+
     margin: 0;
     padding: 14px 16px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 16px;
-    border: 1px solid #ddd;
+
+    border: 1px solid var(--line-dark);
     border-radius: 14px;
-    background: white;
-    color: #222;
+
+    background: var(--card);
+    color: var(--text);
+
     font-size: 16px;
+    font-weight: 400;
     line-height: 1.5;
+
     text-align: left;
+
+    box-shadow: none;
 }
 
 .previous-discovery-button:hover {
-    border-color: #7d9b82;
+    background: #fcfdfb;
+
+    border-color: var(--sage);
+
+    box-shadow: none;
 }
 
 .previous-discovery-arrow {
     flex-shrink: 0;
-    color: #7d9b82;
+
+    color: var(--sage);
+
     font-size: 18px;
 }
 
 
 /* ========================================
    오늘의 행동 - 연쇄 메시지
+   오늘 화면에서는 조금 더 강조
    ======================================== */
 
 .chain-message {
     margin: 0 0 18px;
+
+    color: var(--sage);
+
     font-size: 13px;
-    color: #7d9b82;
     line-height: 1.6;
 }
 
@@ -458,16 +718,34 @@ textarea:focus {
         padding: 32px 18px;
     }
 
+    .screen {
+        min-height: 82vh;
+    }
+
     h1 {
         font-size: 34px;
+        letter-spacing: -0.8px;
     }
 
     h2 {
         font-size: 25px;
+        line-height: 1.45;
+    }
+
+    .intro {
+        font-size: 16px;
     }
 
     .history-card {
-        padding: 20px;
+        padding: 23px 20px;
+    }
+
+    .history-action,
+    .history-content,
+    .history-question,
+    .history-reflection,
+    .history-emotion {
+        font-size: 16px;
     }
 
 }
