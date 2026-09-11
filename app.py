@@ -27,10 +27,15 @@ SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
 
 if not SUPABASE_URL:
-    raise RuntimeError("SUPABASE_URL 환경변수가 없습니다.")
+    raise RuntimeError(
+        "SUPABASE_URL 환경변수가 없습니다."
+    )
+
 
 if not SUPABASE_SECRET_KEY:
-    raise RuntimeError("SUPABASE_SECRET_KEY 환경변수가 없습니다.")
+    raise RuntimeError(
+        "SUPABASE_SECRET_KEY 환경변수가 없습니다."
+    )
 
 
 # =========================================================
@@ -73,6 +78,94 @@ STORAGE_BUCKET = "discoveries"
 
 
 # =========================================================
+# 인증
+# =========================================================
+
+def get_current_user():
+
+    authorization = request.headers.get(
+        "Authorization",
+        ""
+    )
+
+
+    if not authorization.startswith(
+        "Bearer "
+    ):
+
+        return None
+
+
+    token = authorization.split(
+        " ",
+        1
+    )[1].strip()
+
+
+    if not token:
+
+        return None
+
+
+    try:
+
+        response = (
+            supabase
+            .auth
+            .get_user(token)
+        )
+
+
+        if not response:
+
+            return None
+
+
+        user = getattr(
+            response,
+            "user",
+            None
+        )
+
+
+        if user:
+
+            return user
+
+
+        return None
+
+
+    except Exception as error:
+
+        print(
+            "사용자 인증 실패:",
+            error
+        )
+
+        return None
+
+
+def require_user():
+
+    user = get_current_user()
+
+
+    if not user:
+
+        return None, (
+            jsonify({
+                "error":
+                    "로그인이 필요합니다."
+            }),
+            401
+        )
+
+
+    return user, None
+
+
+# =========================================================
 # 공통 함수
 # =========================================================
 
@@ -98,6 +191,7 @@ def parse_optional_int(value):
 
         return None
 
+
     try:
 
         return int(value)
@@ -110,7 +204,10 @@ def parse_optional_int(value):
         return None
 
 
-def get_action_info(actions, item):
+def get_action_info(
+    actions,
+    item
+):
 
     stored_title = item.get(
         "action_title"
@@ -172,7 +269,8 @@ def get_action_info(actions, item):
 
 
 def get_previous_discovery(
-    previous_id
+    previous_id,
+    user_id
 ):
 
     if not previous_id:
@@ -189,6 +287,10 @@ def get_previous_discovery(
         .eq(
             "id",
             previous_id
+        )
+        .eq(
+            "user_id",
+            user_id
         )
         .limit(1)
         .execute()
@@ -266,7 +368,7 @@ def create_fallback_chain_action(
             "방금 발견한 것 주변을 다시 살펴보세요.",
 
         "description":
-            f'"{content}"을 발견했던 곳이나 주변을 잠깐 다시 살펴보세요.',
+            f'"{content}"을 발견했던 곳이나 주변을 잠깐 살펴보세요.',
 
         "difficulty": 1,
 
@@ -318,6 +420,7 @@ def create_signed_image_url(
                 "data"
             )
 
+
             if isinstance(
                 data,
                 dict
@@ -356,13 +459,18 @@ def create_signed_image_url(
         return None
 
 
-def upload_image(image):
+def upload_image(
+    image,
+    user_id
+):
 
     if not image:
+
         return None
 
 
     if not image.filename:
+
         return None
 
 
@@ -403,8 +511,9 @@ def upload_image(image):
     )
 
 
+    # 사용자별 폴더
     storage_path = (
-        f"discoveries/{filename}"
+        f"{user_id}/{filename}"
     )
 
 
@@ -456,6 +565,18 @@ def home():
 @app.get("/api/today")
 def get_today():
 
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
     actions = load_actions()
 
 
@@ -466,6 +587,10 @@ def get_today():
             .table("discoveries")
             .select(
                 "id, content, emotion, reflection"
+            )
+            .eq(
+                "user_id",
+                user_id
             )
             .order(
                 "id",
@@ -489,9 +614,7 @@ def get_today():
         rows = []
 
 
-    # 아직 발견 기록이 없다면
-    # 기존 랜덤 행동 사용
-
+    # 기록이 없다면 랜덤 행동
     if not rows:
 
         action = random.choice(
@@ -546,7 +669,7 @@ def get_today():
 특히 이 서비스에서는 하나의 발견이
 다음 행동의 작은 실마리가 될 수 있습니다.
 
-가장 최근의 발견:
+사용자의 가장 최근 발견:
 
 {json.dumps(
     latest_discovery,
@@ -554,7 +677,7 @@ def get_today():
     indent=2
 )}
 
-최근 발견 기록:
+사용자의 최근 발견 기록:
 
 {json.dumps(
     recent_discoveries,
@@ -562,18 +685,23 @@ def get_today():
     indent=2
 )}
 
-다음 행동을 하나 제안하세요.
+가장 최근의 발견을 출발점으로 삼아
+오늘 해볼 새로운 작은 행동 하나를 만들어주세요.
+
+중요한 것은 '연쇄 사건'처럼 느껴지는 것입니다.
 
 규칙:
 
+- 가장 최근 발견과 자연스럽게 연결되어야 합니다.
+- 이전 행동을 그대로 반복하지 마세요.
+- 같은 대상을 다시 보더라도 다른 관점이나 장소를 탐색하게 하세요.
+- 발견의 의미를 미리 정하거나 결과를 평가하지 마세요.
+- 집이나 일상에서 쉽게 할 수 있어야 합니다.
 - 1~15분 정도면 충분해야 합니다.
 - 특별한 준비물이나 비용이 필요하지 않아야 합니다.
 - 생산성, 자기계발, 운동, 공부를 강요하지 마세요.
 - 해야 할 일을 추가하는 느낌보다
   '한번 해보는 작은 실험'처럼 느껴지게 하세요.
-- 가장 최근의 발견과 자연스럽게 연결되어야 합니다.
-- 이전 행동을 그대로 반복하지 마세요.
-- 발견의 의미를 미리 정하거나 결과를 평가하지 마세요.
 - 사용자가 예상하지 못한 새로운 발견의 가능성을 열어두세요.
 - 행동 자체가 재미있거나 가벼운 호기심을 유발해야 합니다.
 - 설명이나 인사말을 추가하지 마세요.
@@ -661,12 +789,11 @@ difficulty는 1~3 사이의 숫자를 사용하세요.
         )
 
 
-        action = create_fallback_chain_action(
-            latest_discovery
+        return jsonify(
+            create_fallback_chain_action(
+                latest_discovery
+            )
         )
-
-
-        return jsonify(action)
 
 
 # =========================================================
@@ -675,6 +802,19 @@ difficulty는 1~3 사이의 숫자를 사용하세요.
 
 @app.get("/api/discoveries")
 def get_discoveries():
+
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
 
     actions = {
         action["id"]: action
@@ -702,6 +842,10 @@ def get_discoveries():
                 action_description,
                 action_category
                 """
+            )
+            .eq(
+                "user_id",
+                user_id
             )
             .order(
                 "id",
@@ -758,7 +902,8 @@ def get_discoveries():
             get_previous_discovery(
                 item.get(
                     "previous_discovery_id"
-                )
+                ),
+                user_id
             )
         )
 
@@ -791,6 +936,19 @@ def get_discovery(
     discovery_id
 ):
 
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
+
     actions = {
         action["id"]: action
         for action in load_actions()
@@ -821,6 +979,10 @@ def get_discovery(
             .eq(
                 "id",
                 discovery_id
+            )
+            .eq(
+                "user_id",
+                user_id
             )
             .limit(1)
             .execute()
@@ -863,7 +1025,8 @@ def get_discovery(
         get_previous_discovery(
             discovery.get(
                 "previous_discovery_id"
-            )
+            ),
+            user_id
         )
     )
 
@@ -903,6 +1066,19 @@ def get_discovery(
 
 @app.post("/api/discoveries")
 def create_discovery():
+
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
 
     content = (
         request.form
@@ -980,7 +1156,35 @@ def create_discovery():
 
 
     # -----------------------------------------------------
-    # 같은 발견 문장을 다시 저장하지 않음
+    # 이전 발견도 반드시 같은 사용자의 기록인지 확인
+    # -----------------------------------------------------
+
+    if previous_discovery_id is not None:
+
+        previous_response = (
+            supabase
+            .table("discoveries")
+            .select("id")
+            .eq(
+                "id",
+                previous_discovery_id
+            )
+            .eq(
+                "user_id",
+                user_id
+            )
+            .limit(1)
+            .execute()
+        )
+
+
+        if not previous_response.data:
+
+            previous_discovery_id = None
+
+
+    # -----------------------------------------------------
+    # 같은 사용자의 중복 발견 확인
     # -----------------------------------------------------
 
     try:
@@ -989,6 +1193,10 @@ def create_discovery():
             supabase
             .table("discoveries")
             .select("id")
+            .eq(
+                "user_id",
+                user_id
+            )
             .eq(
                 "content",
                 content
@@ -1036,8 +1244,10 @@ def create_discovery():
         try:
 
             image_path = upload_image(
-                image
+                image,
+                user_id
             )
+
 
         except Exception as error:
 
@@ -1057,6 +1267,9 @@ def create_discovery():
     # -----------------------------------------------------
 
     discovery_data = {
+
+        "user_id":
+            user_id,
 
         "action_id":
             action_id,
@@ -1142,6 +1355,19 @@ def create_discovery():
 @app.post("/api/ai/question")
 def create_ai_question():
 
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
+
     data = (
         request.get_json(
             silent=True
@@ -1177,7 +1403,38 @@ def create_ai_question():
 
 
     # -----------------------------------------------------
-    # 최근 AI 질문 조회
+    # 해당 기록이 내 기록인지 확인
+    # -----------------------------------------------------
+
+    if discovery_id is not None:
+
+        ownership_response = (
+            supabase
+            .table("discoveries")
+            .select("id")
+            .eq(
+                "id",
+                discovery_id
+            )
+            .eq(
+                "user_id",
+                user_id
+            )
+            .limit(1)
+            .execute()
+        )
+
+
+        if not ownership_response.data:
+
+            return jsonify({
+                "error":
+                    "해당 기록에 접근할 수 없습니다."
+            }), 403
+
+
+    # -----------------------------------------------------
+    # 내 최근 AI 질문 조회
     # -----------------------------------------------------
 
     try:
@@ -1187,6 +1444,10 @@ def create_ai_question():
             .table("discoveries")
             .select(
                 "ai_question"
+            )
+            .eq(
+                "user_id",
+                user_id
             )
             .not_.is_(
                 "ai_question",
@@ -1390,6 +1651,10 @@ def create_ai_question():
                     "id",
                     discovery_id
                 )
+                .eq(
+                    "user_id",
+                    user_id
+                )
                 .execute()
             )
 
@@ -1419,6 +1684,19 @@ def save_reflection(
     discovery_id
 ):
 
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
+
     data = (
         request.get_json(
             silent=True
@@ -1447,7 +1725,7 @@ def save_reflection(
 
     try:
 
-        (
+        response = (
             supabase
             .table("discoveries")
             .update({
@@ -1458,8 +1736,20 @@ def save_reflection(
                 "id",
                 discovery_id
             )
+            .eq(
+                "user_id",
+                user_id
+            )
             .execute()
         )
+
+
+        if not response.data:
+
+            return jsonify({
+                "error":
+                    "해당 기록을 찾을 수 없습니다."
+            }), 404
 
 
     except Exception as error:
@@ -1480,30 +1770,64 @@ def save_reflection(
             "생각이 저장되었습니다."
     })
 
+
+# =========================================================
 # 기록 삭제
-@app.delete("/api/discoveries/<int:discovery_id>")
-def delete_discovery(discovery_id):
+# =========================================================
+
+@app.delete(
+    "/api/discoveries/<int:discovery_id>"
+)
+def delete_discovery(
+    discovery_id
+):
+
+    user, error_response = (
+        require_user()
+    )
+
+
+    if error_response:
+
+        return error_response
+
+
+    user_id = user.id
+
 
     # 삭제할 기록 조회
     response = (
         supabase
         .table("discoveries")
-        .select("id, image_path")
-        .eq("id", discovery_id)
+        .select(
+            "id, image_path"
+        )
+        .eq(
+            "id",
+            discovery_id
+        )
+        .eq(
+            "user_id",
+            user_id
+        )
         .limit(1)
         .execute()
     )
 
+
     if not response.data:
 
         return jsonify({
-            "error": "삭제할 기록을 찾을 수 없습니다."
+            "error":
+                "삭제할 기록을 찾을 수 없습니다."
         }), 404
 
 
     discovery = response.data[0]
 
-    image_path = discovery.get("image_path")
+    image_path = discovery.get(
+        "image_path"
+    )
 
 
     # 기록 삭제
@@ -1513,9 +1837,17 @@ def delete_discovery(discovery_id):
             supabase
             .table("discoveries")
             .delete()
-            .eq("id", discovery_id)
+            .eq(
+                "id",
+                discovery_id
+            )
+            .eq(
+                "user_id",
+                user_id
+            )
             .execute()
         )
+
 
     except Exception as error:
 
@@ -1525,7 +1857,8 @@ def delete_discovery(discovery_id):
         )
 
         return jsonify({
-            "error": "기록을 삭제하지 못했습니다."
+            "error":
+                "기록을 삭제하지 못했습니다."
         }), 500
 
 
@@ -1543,10 +1876,9 @@ def delete_discovery(discovery_id):
                 ])
             )
 
+
         except Exception as error:
 
-            # 기록 삭제는 성공했지만
-            # 사진 삭제에 실패한 경우
             print(
                 "사진 삭제 실패:",
                 error
@@ -1554,8 +1886,10 @@ def delete_discovery(discovery_id):
 
 
     return jsonify({
-        "message": "기록이 삭제되었습니다."
+        "message":
+            "기록이 삭제되었습니다."
     })
+
 
 # =========================================================
 # 로컬 실행

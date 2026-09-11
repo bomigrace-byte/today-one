@@ -622,6 +622,243 @@ textarea:focus {
 
 
 /* ========================================
+   사용자 입력 - 발견
+   ======================================== */
+
+#saved-discovery,
+#detail-content {
+    color: var(--sage) !important;
+}
+
+
+/* ========================================
+   상세 화면 하단 버튼 간격
+   ======================================== */
+
+#detail-back-button {
+    margin-top: 52px;
+}
+
+.delete-button {
+    width: 180px;
+
+    margin-top: 14px;
+
+    background: transparent;
+    color: var(--muted);
+
+    border: 1px solid var(--line-dark);
+
+    box-shadow: none;
+}
+
+.delete-button:hover {
+    background: var(--card);
+
+    color: #666666;
+
+    border-color: #b8b5ae;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   Auth
+========================================================= */
+
+/*
+   로그인 화면은 기존 화면보다
+   위쪽에 조금 더 안정적으로 배치합니다.
+*/
+
+.auth-screen {
+    justify-content: flex-start;
+
+    min-height: 80vh;
+
+    padding-top: 24px;
+}
+
+
+/*
+   로그인 설명 문구는 한 줄로 유지합니다.
+*/
+
+.auth-screen .intro {
+    white-space: nowrap;
+
+    margin-bottom: 24px;
+
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+
+/*
+   인증 폼
+*/
+
+.auth-form {
+    width: 100%;
+    max-width: 360px;
+
+    margin: 0 auto;
+}
+
+
+/*
+   이메일 / 비밀번호
+*/
+
+.auth-input {
+    display: block;
+
+    width: 100%;
+    height: 52px;
+
+    margin: 0 0 10px;
+    padding: 0 16px;
+
+    border: 1px solid var(--line);
+    border-radius: 10px;
+
+    background: var(--card);
+
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.auth-input::placeholder {
+    color: var(--muted);
+}
+
+.auth-input:focus {
+    border-color: var(--sage);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(125, 155, 130, 0.12);
+}
+
+
+/*
+   로그인 버튼
+   전역 button의 margin을 덮어써서
+   입력창과 정확히 같은 폭으로 맞춥니다.
+*/
+
+.auth-main-button {
+    display: block;
+
+    width: 100%;
+    height: 52px;
+
+    margin: 20px 0 0;
+}
+
+
+/*
+   회원가입 / 데모 링크
+*/
+
+.auth-links {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 22px;
+}
+
+
+/*
+   전역 button의
+   width: 180px / height: 52px / margin: 6px
+   영향을 받지 않도록 명시적으로 초기화합니다.
+*/
+
+.auth-link-button {
+    width: auto;
+    height: auto;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-radius: 0;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+
+    cursor: pointer;
+
+    box-shadow: none;
+}
+
+.auth-link-button:hover {
+    background: transparent;
+
+    color: var(--sage);
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+.auth-divider {
+    color: var(--line-dark);
+
+    font-size: 12px;
+}
+
+
+/*
+   인증 메시지
+*/
+
+.auth-message {
+    min-height: 20px;
+
+    margin-top: 16px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+
+/*
+   로그인 후 로그아웃
+*/
+
+.auth-logout-button {
+    margin-top: 18px;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
    모바일
    ======================================== */
 
@@ -660,62 +897,18 @@ textarea:focus {
     .history-emotion {
         font-size: 16px;
     }
-}
 
 
-/* ========================================
-   사용자 입력 - 발견
-   ======================================== */
+    /*
+       모바일에서는 화면 폭 때문에
+       설명 문구를 조금 작게 유지합니다.
+    */
 
-#saved-discovery,
-#detail-content {
-    color: var(--sage) !important;
-}
+    .auth-screen .intro {
+        font-size: 15px;
+    }
 
-
-/* ========================================
-   상세 화면 하단 버튼 간격
-   ======================================== */
-
-/*
-   기존에는 돌아가기 버튼이
-   일반 버튼의 기본 margin: 6px만 적용되어
-   바로 위 내용에 붙어 보였습니다.
-
-   상세 화면에서는 내용을 충분히 읽은 뒤
-   다음 행동으로 넘어가는 느낌을 주도록
-   돌아가기 버튼을 아래로 분리합니다.
-*/
-
-#detail-back-button {
-    margin-top: 52px;
-}
-
-
-/*
-   삭제 버튼은 돌아가기와 너무 벌어지지 않도록
-   별도의 간격을 작게 유지합니다.
-*/
-
-.delete-button {
-    width: 180px;
-
-    margin-top: 14px;
-
-    background: transparent;
-    color: var(--muted);
-
-    border: 1px solid var(--line-dark);
-
-    box-shadow: none;
-}
-
-.delete-button:hover {
-    background: var(--card);
-
-    color: #666666;
-
-    border-color: #b8b5ae;
-
-    box-shadow: none;
+    .auth-form {
+        max-width: 360px;
+    }
 }
